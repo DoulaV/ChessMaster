@@ -10,25 +10,12 @@ import type { PlanExercise } from '../../data/planning/types';
 import { getEngine, scoreToCp } from '../../engine/engine';
 import { openingProgressSlot } from '../../progress/openings';
 import { today } from '../../progress/srs';
-import { update, useSlot, type Slot } from '../../progress/store';
+import { planningSlot, type PlanningStats } from '../../progress/planning';
+import { update, useSlot } from '../../progress/store';
 import { BoardLayout } from '../../ui/BoardLayout';
 import { Badge, Button, Card, Progress } from '../../ui/kit';
 import { analysisPath } from '../analysis/handoff';
 import { positionPool } from '../blunder/generate';
-
-interface PlanningStats {
-  quiz: { right: number; total: number };
-  candidates: { rounds: number; foundBest: number };
-  lessonsRead: string[];
-  recentQuiz: string[];
-  days: Record<string, { quiz: number; candidates: number }>;
-}
-
-export const planningSlot: Slot<PlanningStats> = {
-  key: 'planning',
-  version: 1,
-  initial: () => ({ quiz: { right: 0, total: 0 }, candidates: { rounds: 0, foundBest: 0 }, lessonsRead: [], recentQuiz: [], days: {} }),
-};
 
 function bumpDay(s: PlanningStats, k: 'quiz' | 'candidates'): PlanningStats['days'] {
   const d = today();
