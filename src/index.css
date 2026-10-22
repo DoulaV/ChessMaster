@@ -1,0 +1,10 @@
+@import 'tailwindcss';
+
+@custom-variant dark (@media (prefers-color-scheme: dark));
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+body {
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
