@@ -2,10 +2,10 @@ import { Chess, type Color } from 'chess.js';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { ARROW, Board, HIGHLIGHT, type Arrow } from '../../chess/board/Board';
-import { hangingPieces, threatsBy } from '../../chess/detectors';
+import { hangingPieces, mateInOneThreats } from '../../chess/detectors';
 import { MISTAKE_LABEL, QUALITY_LABEL } from '../../chess/explain';
 import { treeFromSans } from '../../chess/moveTree';
-import { START_FEN, formatLine, isValidFen, other, parseUci } from '../../chess/utils';
+import { START_FEN, flipTurn, formatLine, isValidFen, other, parseUci } from '../../chess/utils';
 import { CATALOG, LESSONS } from '../../data/openings/catalog';
 import { getBackgroundEngine, getEngine } from '../../engine/engine';
 import { BOT_LEVELS, botMove, levelFor, thinkTime } from '../../engine/humanBot';
@@ -191,6 +191,18 @@ function PlayGame({ initial, onExit, onRematch }: { initial: Game; onExit: () =>
   const fen = chess.fen();
   const turn = chess.turn();
   const yourTurn = turn === g.you && !g.over;
+  // Worked out once per position (not on every clock tick).
+  const coachColors = useMemo(() => {
+    const out: Record<string, string> = {};
+    if (g.setup.coach !== 'full' || turn !== g.you) return out;
+    for (const h of hangingPieces(fen, g.you)) out[h.square] = HIGHLIGHT.danger;
+    for (const sq of mateThreatSquares(fen, other(g.you))) out[sq] = HIGHLIGHT.warn;
+    return out;
+  }, [fen, g.setup.coach, g.you, turn]);
+  const lastMoveObj = useMemo(() => {
+    const h = chess.history({ verbose: true });
+    return h[h.length - 1] ?? null;
+  }, [chess]);
 
   // Detect the end of the game.
   useEffect(() => {
@@ -210,11 +222,11 @@ function PlayGame({ initial, onExit, onRematch }: { initial: Game; onExit: () =>
     const id = window.setInterval(() => {
       setG((x) => {
         if (!x.clock || x.over) return x;
-        const t = { ...x.clock, [turn]: Math.max(0, x.clock[turn] - 100) };
+        const t = { ...x.clock, [turn]: Math.max(0, x.clock[turn] - 200) };
         if (t[turn] === 0) return { ...x, clock: t, over: { result: turn === x.you ? 'loss' : 'win', reason: 'time ran out' } };
         return { ...x, clock: t };
       });
-    }, 100);
+    }, 200);
     return () => clearInterval(id);
   }, [turn, g.over, !!g.clock, warning]);
 
@@ -405,12 +417,7 @@ function PlayGame({ initial, onExit, onRematch }: { initial: Game; onExit: () =>
   // Board decorations.
   const highlights: Record<string, string> = {};
   const arrows: Arrow[] = [];
-  if (g.setup.coach === 'full' && yourTurn && !warning) {
-    for (const h of hangingPieces(fen, g.you)) highlights[h.square] = HIGHLIGHT.danger;
-    for (const t of threatsBy(fen, other(g.you))) {
-      if (t.kind === 'mate') highlights[t.square] = HIGHLIGHT.warn;
-    }
-  }
+  if (g.setup.coach === 'full' && yourTurn && !warning) Object.assign(highlights, coachColors);
   if (hint && hint.fen === fen) {
     const { from, to } = squaresOf(hint.bestUci);
     if (hint.level >= 2) highlights[from] = HIGHLIGHT.info;
@@ -430,8 +437,7 @@ function PlayGame({ initial, onExit, onRematch }: { initial: Game; onExit: () =>
     const last = hist[hist.length - 1];
     if (last) highlights[last.to] = HIGHLIGHT.danger;
   }
-  const hist = chess.history({ verbose: true });
-  const last = hist[hist.length - 1];
+  const last = lastMoveObj;
   const openingLesson = LESSONS.find((l) => l.id === g.lessonId) ?? LESSONS.find((l) => g.book.label.startsWith(l.name + ':'));
   const openingPlan = openingLesson && openingLesson.side === orientation ? openingLesson.plan.summary : null;
   const fmtClock = (ms: number) => `${Math.floor(ms / 60000)}:${String(Math.floor((ms % 60000) / 1000)).padStart(2, '0')}`;
@@ -568,6 +574,14 @@ function PlayGame({ initial, onExit, onRematch }: { initial: Game; onExit: () =>
       </Modal>
     </>
   );
+}
+
+/** Squares where the opponent would give checkmate next move. */
+function mateThreatSquares(fen: string, by: Color): string[] {
+  return mateInOneThreats(fen, by).map((san) => {
+    const flipped = new Chess(fen).turn() === by ? fen : flipTurn(fen);
+    return flipped ? new Chess(flipped).move(san).to : '';
+  }).filter(Boolean);
 }
 
 /** Book banner state after a list of moves (used after a takeback). */

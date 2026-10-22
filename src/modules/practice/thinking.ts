@@ -4,7 +4,7 @@
 
 import { Chess, type Color, type Move, type PieceSymbol, type Square } from 'chess.js';
 import { exchangeGain, findForks, findPins, hangingPieces, mateInOneThreats } from '../../chess/detectors';
-import { PIECE_NAME, PIECE_VALUE, other } from '../../chess/utils';
+import { PIECE_NAME, PIECE_VALUE, flipTurn, other } from '../../chess/utils';
 
 const name = (p: PieceSymbol) => PIECE_NAME[p];
 
@@ -164,16 +164,32 @@ export function threatsStep(fen: string): ThinkStep {
     moves: [],
   };
   const found: { m: Move; text: string; score: number }[] = [];
+  const opp = other(me);
+  const enemyKing = c.board().flat().find((p) => p && p.type === 'k' && p.color === opp)?.square;
+  const kingZone = enemyKing ? neighbours(enemyKing) : [];
   for (const m of c.moves({ verbose: true })) {
     if (m.captured || m.san.includes('+')) continue;
     c.move(m);
+    // Cheap filter first: what does the moved piece attack now?
+    const targets: Square[] = [];
+    for (const row of c.board()) {
+      for (const p of row) {
+        if (p && p.color === opp && p.type !== 'p' && p.type !== 'k' && c.attackers(p.square, me).includes(m.to)) targets.push(p.square);
+      }
+    }
+    const nearKing = m.piece !== 'p' && m.piece !== 'k' && kingZone.some((sq) => c.attackers(sq, me).includes(m.to));
+    if (!targets.length && !nearKing) {
+      c.undo();
+      continue;
+    }
     const after = c.fen();
-    const movedHangs = hangingPieces(after, me).some((h) => h.square === m.to);
+    // It's the opponent's move now: can they simply win the piece that just moved?
+    const movedHangs = exchangeGain(c, m.to) > 0;
     if (!movedHangs) {
-      const fork = findForks(after, me).find((f) => f.from === m.to);
-      const pin = findPins(after, me).find((p) => p.by === m.to);
-      const mate = mateInOneThreats(after, me);
-      const wins = hangingPieces(after, other(me)).filter((h) => h.loss >= 2);
+      const mate = nearKing ? mateInOneThreats(after, me) : [];
+      const fork = targets.length >= 2 ? findForks(after, me).find((f) => f.from === m.to) : undefined;
+      const pin = targets.length && 'brq'.includes(m.piece) ? findPins(after, me).find((p) => p.by === m.to) : undefined;
+      const wins = targets.length ? winnableTargets(after, targets) : [];
       if (mate.length) found.push({ m, text: `${m.san} threatens checkmate (${mate[0]}).`, score: 10 });
       else if (fork) found.push({ m, text: `${m.san} forks two pieces.`, score: 8 });
       else if (pin) found.push({ m, text: `${m.san} pins the ${name(c.get(pin.pinned)!.type)} on ${pin.pinned}.`, score: 6 });
@@ -236,3 +252,59 @@ export function planStep(fen: string, openingPlan?: string | null): ThinkStep {
 export function allSteps(fen: string, last: Move | null, openingPlan?: string | null): ThinkStep[] {
   return [lastMoveStep(fen, last), dangerStep(fen), checksStep(fen), capturesStep(fen), threatsStep(fen), planStep(fen, openingPlan)];
 }
+
+/** Of the attacked enemy pieces, which could we win (2+ points) if it were our move again? */
+function winnableTargets(fenAfter: string, targets: Square[]): { square: Square; piece: PieceSymbol; loss: number }[] {
+  const flipped = flipTurn(fenAfter);
+  if (!flipped) return [];
+  const c = new Chess(flipped);
+  const out: { square: Square; piece: PieceSymbol; loss: number }[] = [];
+  for (const sq of targets) {
+    const loss = exchangeGain(c, sq);
+    if (loss >= 2) out.push({ square: sq, piece: c.get(sq)!.type, loss });
+  }
+  return out.sort((a, b) => b.loss - a.loss);
+}
+
+/** The squares around a square (for the king's zone). */
+function neighbours(sq: Square): Square[] {
+  const f = sq.charCodeAt(0) - 97;
+  const r = Number(sq[1]) - 1;
+  const out: Square[] = [];
+  for (let df = -1; df <= 1; df++) {
+    for (let dr = -1; dr <= 1; dr++) {
+      const nf = f + df;
+      const nr = r + dr;
+      if ((df || dr) && nf >= 0 && nf < 8 && nr >= 0 && nr < 8) out.push(`${'abcdefgh'[nf]}${nr + 1}` as Square);
+    }
+  }
+  return out;
+}
+
+/** One step by id, so the coach can work out only the step you asked for. */
+export function stepById(id: ThinkStep['id'], fen: string, last: Move | null, openingPlan?: string | null): ThinkStep {
+  switch (id) {
+    case 'last-move':
+      return lastMoveStep(fen, last);
+    case 'danger':
+      return dangerStep(fen);
+    case 'checks':
+      return checksStep(fen);
+    case 'captures':
+      return capturesStep(fen);
+    case 'threats':
+      return threatsStep(fen);
+    case 'plan':
+      return planStep(fen, openingPlan);
+  }
+}
+
+/** The questions (without answers), so they can be shown instantly. */
+export const STEP_QUESTIONS: { id: ThinkStep['id']; question: (last: Move | null) => string; why: string }[] = [
+  { id: 'last-move', question: (last) => (last ? `Your opponent just played ${last.san}. What does that move want?` : 'What is your opponent aiming for?'), why: 'Most blunders come from not asking this. Every move changes what is attacked.' },
+  { id: 'danger', question: () => 'Is anything of yours in danger right now?', why: 'Look at every one of your pieces: is it attacked, and is it protected enough?' },
+  { id: 'checks', question: () => 'Checks: which checks can you give?', why: 'Checks are the most forcing moves. Always look at them first, even the crazy ones.' },
+  { id: 'captures', question: () => 'Captures: what can you take, and is it really free?', why: 'Count attackers and defenders. A capture is only good if you don’t lose more back.' },
+  { id: 'threats', question: () => 'Threats: which of your moves would attack something?', why: 'A move that attacks makes your opponent react to you, instead of you reacting to them.' },
+  { id: 'plan', question: () => 'No tactic? Then make a plan. Which of your pieces is doing the least?', why: 'Improve your worst piece, or follow your opening’s plan. A plan connects your moves into a story.' },
+];

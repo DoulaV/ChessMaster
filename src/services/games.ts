@@ -35,9 +35,20 @@ export async function chessComGames(user: string, max = 20): Promise<ImportedGam
   if (!res.ok) throw new Error('Chess.com did not answer. Try again in a minute.');
   const { archives } = (await res.json()) as { archives: string[] };
   const out: ImportedGame[] = [];
-  for (const url of [...archives].reverse().slice(0, 3)) {
-    const r = await fetch(url);
-    if (!r.ok) continue;
+  let failed = 0;
+  const months = [...archives].reverse().slice(0, 3);
+  for (const url of months) {
+    let r: Response;
+    try {
+      r = await fetch(url);
+    } catch {
+      failed++;
+      continue;
+    }
+    if (!r.ok) {
+      failed++;
+      continue;
+    }
     const { games } = (await r.json()) as { games: ChessComGame[] };
     for (const g of [...games].reverse()) {
       if (g.rules !== 'chess' || !g.pgn) continue;
@@ -58,7 +69,41 @@ export async function chessComGames(user: string, max = 20): Promise<ImportedGam
       if (out.length >= max) return out;
     }
   }
+  if (!out.length && months.length && failed === months.length) {
+    throw new Error('Chess.com found your account but refused to send the games right now. Try again in a minute, or paste a game below.');
+  }
   return out;
+}
+
+/** Your result from a PGN result tag. Unfinished games ("*") count as draws. */
+export function resultFor(res: string, you: 'white' | 'black'): 'win' | 'loss' | 'draw' {
+  if (res === '1-0') return you === 'white' ? 'win' : 'loss';
+  if (res === '0-1') return you === 'black' ? 'win' : 'loss';
+  return 'draw';
+}
+
+/** A single game pasted as PGN (e.g. from Chess.com: Share, then PGN). */
+export function pastedGame(pgn: string, username: string): ImportedGame {
+  const tag = (k: string) => pgn.match(new RegExp(`\\[${k} "([^"]*)"\\]`))?.[1] ?? '';
+  const white = tag('White') || 'White';
+  const black = tag('Black') || 'Black';
+  const u = username.trim().toLowerCase();
+  const you: 'white' | 'black' = u && black.toLowerCase() === u ? 'black' : 'white';
+  const result = resultFor(tag('Result'), you);
+  const date = tag('UTCDate') || tag('Date');
+  const iso = /^\d{4}\.\d{2}\.\d{2}$/.test(date) ? new Date(date.replace(/\./g, '-') + 'T12:00:00Z').toISOString() : new Date().toISOString();
+  return {
+    id: `pgn:${white}-${black}-${date}-${pgn.length}`,
+    site: tag('Site').toLowerCase().includes('lichess') ? 'lichess' : 'chess.com',
+    url: tag('Link') || tag('Site'),
+    pgn,
+    playedAt: iso,
+    white: { name: white, rating: Number(tag('WhiteElo')) || null },
+    black: { name: black, rating: Number(tag('BlackElo')) || null },
+    you,
+    result,
+    timeClass: tag('TimeControl') || 'game',
+  };
 }
 
 interface LichessGame {

@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ROOT, lineEnd, parsePgn } from '../src/chess/moveTree';
 import { START_FEN } from '../src/chess/utils';
 import { bookDeparture } from '../src/modules/practice/book';
-import { chessComGames, lichessGames } from '../src/services/games';
+import { chessComGames, lichessGames, pastedGame, resultFor } from '../src/services/games';
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -32,6 +32,27 @@ describe('importing games', () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response(line + '\n')));
     const games = await lichessGames('me');
     expect(games[0]).toMatchObject({ you: 'black', result: 'win', url: 'https://lichess.org/abc' });
+  });
+});
+
+describe('Chess.com problems and pasted games', () => {
+  it('explains when Chess.com refuses to send the games', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (url: string) =>
+      url.endsWith('/archives') ? new Response(JSON.stringify({ archives: ['a/2026/09', 'a/2026/10'] })) : new Response('', { status: 403 }),
+    ));
+    await expect(chessComGames('me')).rejects.toThrow(/refused to send the games/);
+  });
+
+  it('reads a pasted Chess.com PGN and finds me by username', () => {
+    const g = pastedGame('[White "Rival"]\n[Black "Me"]\n[Result "0-1"]\n[UTCDate "2026.10.20"]\n\n1. e4 e5 0-1', 'me');
+    expect(g).toMatchObject({ you: 'black', result: 'win', playedAt: '2026-10-20T12:00:00.000Z' });
+  });
+
+  it('works out results, with unfinished games as draws', () => {
+    expect(resultFor('1-0', 'white')).toBe('win');
+    expect(resultFor('1-0', 'black')).toBe('loss');
+    expect(resultFor('0-1', 'black')).toBe('win');
+    expect(resultFor('*', 'black')).toBe('draw');
   });
 });
 

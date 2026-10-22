@@ -9,7 +9,8 @@ import { addPuzzles } from '../../progress/puzzles';
 import { reviewsSlot, type ReviewedGame } from '../../progress/reviews';
 import { update, useSlot } from '../../progress/store';
 import { settingsSlot } from '../../progress/slots';
-import { chessComGames, lichessGames, type ImportedGame } from '../../services/games';
+import { chessComGames, lichessGames, pastedGame, resultFor, type ImportedGame } from '../../services/games';
+import { parsePgn as checkPgn } from '../../chess/moveTree';
 import { BoardLayout, PlayerBar } from '../../ui/BoardLayout';
 import { Badge, Button, Card, Progress, Segmented, Tip } from '../../ui/kit';
 import { analysisPath } from '../analysis/handoff';
@@ -25,6 +26,27 @@ export function GameReviewPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState<ImportedGame | null>(null);
+  const [paste, setPaste] = useState('');
+  const [pasteError, setPasteError] = useState('');
+  const [pasteColor, setPasteColor] = useState<'auto' | 'white' | 'black'>('auto');
+
+  function reviewPasted() {
+    const text = paste.trim();
+    try {
+      const { tree } = checkPgn(text);
+      if (Object.keys(tree.nodes).length < 3) throw new Error('No moves found.');
+    } catch (e) {
+      setPasteError(`That doesn’t look like a game in PGN form. ${(e as Error).message}`);
+      return;
+    }
+    setPasteError('');
+    const g = pastedGame(text, settings.chesscomUser || settings.lichessUser);
+    if (pasteColor !== 'auto') {
+      g.you = pasteColor;
+      g.result = resultFor(text.match(/\[Result "([^"]*)"\]/)?.[1] ?? '*', pasteColor);
+    }
+    setOpen(g);
+  }
 
   useEffect(() => setName(site === 'chess.com' ? settings.chesscomUser : settings.lichessUser), [site]);
 
@@ -91,6 +113,32 @@ export function GameReviewPage() {
           </div>
         </Card>
       )}
+
+      <Card title="Or paste a game">
+        <p className="mb-2 text-sm text-cm-muted">
+          In the Chess.com app: open a game, tap <b>Share</b>, then <b>PGN</b>, copy it, and paste it here. Works for any game.
+        </p>
+        <textarea
+          className="w-full rounded-lg border p-2 font-mono text-xs"
+          rows={5}
+          placeholder={'[White "you"]\n[Black "opponent"]\n\n1. e4 e5 2. Nf3 ...'}
+          value={paste}
+          onChange={(e) => setPaste(e.target.value)}
+        />
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <Segmented
+            value={pasteColor}
+            onChange={setPasteColor}
+            options={[
+              { value: 'auto', label: 'Find me by username' },
+              { value: 'white', label: 'I was White' },
+              { value: 'black', label: 'I was Black' },
+            ]}
+          />
+          <Button variant="primary" onClick={reviewPasted} disabled={!paste.trim()}>Review this game</Button>
+        </div>
+        {pasteError && <p className="mt-2 text-sm text-red-400">{pasteError}</p>}
+      </Card>
 
       {Object.keys(reviews).length > 0 && !games && (
         <p className="text-sm text-cm-faint">You have reviewed {Object.keys(reviews).length} games so far. Load your games to see them.</p>
