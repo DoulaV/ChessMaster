@@ -148,7 +148,7 @@ function evalsAfterReply(evals: { pv: string[] }[], i: number): string | undefin
 }
 
 /** Turn the student's mistakes into personal puzzles (position before the mistake, best move as the answer). */
-export function puzzlesFrom(review: GameReview, student: Color, sourceLabel: string) {
+export function puzzlesFrom(review: GameReview, student: Color, sourceLabel: string, source: 'practice' | 'review' = 'practice') {
   return review.moves
     .filter((m) => m.color === student && (m.quality === 'mistake' || m.quality === 'blunder') && m.bestUci)
     .map((m) => ({
@@ -157,7 +157,7 @@ export function puzzlesFrom(review: GameReview, student: Color, sourceLabel: str
       line: m.bestLine,
       played: m.san,
       tag: mistakeTag(m.fenBefore, m.uci, m.bestUci),
-      source: 'practice' as const,
+      source,
       sourceLabel,
     }));
 }

@@ -1,6 +1,7 @@
 // An opening book built from all the lessons: for any position that appears
 // in a lesson, which moves are "book" and which line they belong to.
 
+import { Chess } from 'chess.js';
 import { epd } from '../../chess/utils';
 import { buildTree } from '../../data/openings/build';
 import { LESSONS } from '../../data/openings/catalog';
@@ -91,4 +92,31 @@ export function pickBookMove(moves: BookMove[], random: () => number = Math.rand
     if (r <= 0) return m;
   }
   return moves[0];
+}
+
+export interface BookDeparture {
+  /** 0-based index into the moves list. */
+  index: number;
+  san: string;
+  /** Who left the book. */
+  byYou: boolean;
+  /** Book moves in that position. */
+  book: BookMove[];
+  /** The opening line you were following until then. */
+  line: string;
+}
+
+/** Where a game left the opening book (any of the 24 lessons), or null if it never entered it. */
+export function bookDeparture(startFen: string, sans: string[], you: 'w' | 'b'): BookDeparture | null {
+  const c = new Chess(startFen);
+  let line = '';
+  for (let i = 0; i < sans.length; i++) {
+    const book = bookMoves(c.fen());
+    if (!book.length) return null;
+    const hit = book.find((b) => b.san === sans[i]);
+    if (!hit) return { index: i, san: sans[i], byYou: c.turn() === you, book, line };
+    line = `${hit.lessonName}: ${hit.lineName}`;
+    c.move(sans[i]);
+  }
+  return null;
 }

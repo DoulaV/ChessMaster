@@ -19,7 +19,7 @@ export const MODULES: ModuleInfo[] = [
   { to: '/tactics', title: 'Tactics', icon: '⚡', blurb: '15 puzzles a day by theme: forks, pins, skewers, mates.', ready: true },
   { to: '/planning', title: 'Planning', icon: '🧭', blurb: 'Learn to think in plans and candidate moves, not one move at a time.', ready: true },
   { to: '/endgames', title: 'Endgames', icon: '👑', blurb: 'The essential checkmates and pawn endings, practiced until automatic.', ready: false },
-  { to: '/game-review', title: 'Game Review', icon: '🔍', blurb: 'Import your Chess.com games and turn your mistakes into puzzles.', ready: false },
+  { to: '/game-review', title: 'Game Review', icon: '🔍', blurb: 'Import your Chess.com games and turn your mistakes into puzzles.', ready: true },
   { to: '/analysis', title: 'Analysis Board', icon: '🔬', blurb: 'Explore any position with the engine, threat view and explanations.', ready: true },
 ];
 

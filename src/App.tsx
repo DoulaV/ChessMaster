@@ -5,6 +5,7 @@ import { BlunderPage } from './modules/blunder/BlunderPage';
 import { HomePage } from './modules/home/HomePage';
 import { PlanningPage } from './modules/planning/PlanningPage';
 import { PracticePage } from './modules/practice/PracticePage';
+import { GameReviewPage } from './modules/review/GameReviewPage';
 import { TacticsPage } from './modules/tactics/TacticsPage';
 import { TrainPage } from './modules/train/TrainPage';
 import { OpeningPage } from './modules/openings/OpeningPage';
@@ -29,6 +30,7 @@ export function App() {
           <Route path="blunder-check/:mode" element={<BlunderPage />} />
           <Route path="practice" element={<PracticePage />} />
           <Route path="train" element={<TrainPage />} />
+          <Route path="game-review" element={<GameReviewPage />} />
           <Route path="tactics" element={<TacticsPage />} />
           <Route path="planning" element={<PlanningPage />} />
           <Route path="planning/:mode" element={<PlanningPage />} />

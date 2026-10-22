@@ -8,6 +8,7 @@ const NAV = [
   { to: '/tactics', label: 'Tactics', icon: '⚡', mobile: false },
   { to: '/blunder-check', label: 'Blunders', icon: '🛡️', mobile: false },
   { to: '/planning', label: 'Planning', icon: '🧭', mobile: false },
+  { to: '/game-review', label: 'Game Review', icon: '🔍', mobile: false },
   { to: '/analysis', label: 'Analysis', icon: '🔬', mobile: true },
   { to: '/studies', label: 'Studies', icon: '📚', mobile: false },
   { to: '/settings', label: 'Settings', icon: '⚙️', mobile: false },

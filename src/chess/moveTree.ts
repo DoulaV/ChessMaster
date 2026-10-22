@@ -176,7 +176,8 @@ export function parsePgn(text: string): { tree: MoveTree; headers: Record<string
   const stack: [string, string][] = [];
   for (const tok of tokens) {
     if (tok.startsWith('{') || tok.startsWith(';')) {
-      const comment = tok.replace(/^[{;]|}$/g, '').trim();
+      // Drop machine data like [%clk 0:09:58] that Chess.com and Lichess add.
+      const comment = tok.replace(/^[{;]|}$/g, '').replace(/\[%[^\]]*\]/g, '').trim();
       if (cur !== ROOT && comment) {
         const old = tree.nodes[cur].comment;
         tree = setComment(tree, cur, old ? `${old} ${comment}` : comment);

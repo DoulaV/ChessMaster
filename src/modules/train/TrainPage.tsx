@@ -4,6 +4,7 @@ const ITEMS = [
   { to: '/tactics', icon: '⚡', title: 'Tactics', text: '15 puzzles a day by theme, plus puzzles from your own games.' },
   { to: '/blunder-check', icon: '🛡️', title: 'Blunder Check', text: 'Spot threats, check if moves are safe, find hanging pieces.' },
   { to: '/planning', icon: '🧭', title: 'Planning', text: 'Think beyond one move: plans, candidate moves, key ideas.' },
+  { to: '/game-review', icon: '🔍', title: 'Game Review', text: 'Import your Chess.com or Lichess games and learn from your mistakes.' },
 ];
 
 /** One place for all training drills (used by the phone's bottom bar). */
