@@ -140,7 +140,7 @@ function ReviewOne({ game, onBack }: { game: ImportedGame; onBack: () => void })
         blunders: r.counts[you].blunder,
         mistakes: r.counts[you].mistake,
         tags: r.topMistakes.map((m) => m.tag),
-        leftBook: dep ? { move: Math.floor(dep.index / 2) + 1, san: dep.san, byYou: dep.byYou, book: dep.book.map((b) => b.san).join(', ') } : null,
+        leftBook: dep && !dep.ended ? { move: Math.floor(dep.index / 2) + 1, san: dep.san, byYou: dep.byYou, book: dep.book.map((b) => b.san).join(', ') } : null,
       };
       update(reviewsSlot, (all) => ({ ...all, [game.id]: summary }));
       addPuzzles(puzzlesFrom(r, you, `Your ${game.site} game vs ${summary.opponent}`, 'review'));
@@ -239,11 +239,17 @@ function ReviewOne({ game, onBack }: { game: ImportedGame; onBack: () => void })
 
           {departure && (
             <Card title="📖 Opening book">
-              <p className="text-sm">
-                {departure.line ? <>You followed <b>{departure.line}</b>. </> : null}
-                {departure.byYou ? 'You' : 'Your opponent'} left the book on move {Math.floor(departure.index / 2) + 1} with <b>{departure.san}</b>.
-                {' '}The book move{departure.book.length > 1 ? 's were' : ' was'} <b>{departure.book.map((b) => b.san).slice(0, 3).join(', ')}</b>.
-              </p>
+              {departure.ended ? (
+                <p className="text-sm">
+                  You followed <b>{departure.line}</b> all the way to move {Math.floor(departure.index / 2) + 1}, the end of the lesson line. 👏 From there, the plan of the opening is your guide.
+                </p>
+              ) : (
+                <p className="text-sm">
+                  {departure.line ? <>You followed <b>{departure.line}</b>. </> : null}
+                  {departure.byYou ? 'You' : 'Your opponent'} left the book on move {Math.floor(departure.index / 2) + 1} with <b>{departure.san}</b>.
+                  {' '}The book move{departure.book.length > 1 ? 's were' : ' was'} <b>{departure.book.map((b) => b.san).slice(0, 3).join(', ')}</b>.
+                </p>
+              )}
               <Button size="sm" variant="ghost" className="mt-1" onClick={() => setCurrent(departure.index === 0 ? ROOT : ids[departure.index - 1])}>
                 Show the position
               </Button>

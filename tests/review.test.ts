@@ -53,6 +53,13 @@ describe('opening book departure', () => {
     expect(d.line).toMatch(/Nc6|Italian|Ruy|Scotch|1\.\.\.e5/);
   });
 
+  it('says when a game followed the book to the end of a lesson line', () => {
+    const moves = ['e4', 'e5', 'Nf3', 'Nc6', 'Bc4', 'Nf6', 'Ng5', 'd5', 'exd5', 'Nxd5', 'Nxf7', 'Kxf7', 'Qf3+', 'Ke6', 'Nc3', 'Nb4'];
+    const d = bookDeparture(START_FEN, moves, 'w')!;
+    expect(d.ended).toBe(true);
+    expect(d.line).toMatch(/Fried Liver/);
+  });
+
   it('notices when the opponent leaves the book', () => {
     const d = bookDeparture(START_FEN, ['e4', 'a6'], 'w')!;
     expect(d.byYou).toBe(false);

@@ -104,6 +104,8 @@ export interface BookDeparture {
   book: BookMove[];
   /** The opening line you were following until then. */
   line: string;
+  /** True when the lesson line simply ended here (nobody played a wrong move). */
+  ended: boolean;
 }
 
 /** Where a game left the opening book (any of the 24 lessons), or null if it never entered it. */
@@ -112,9 +114,9 @@ export function bookDeparture(startFen: string, sans: string[], you: 'w' | 'b'):
   let line = '';
   for (let i = 0; i < sans.length; i++) {
     const book = bookMoves(c.fen());
-    if (!book.length) return null;
+    if (!book.length) return i > 0 ? { index: i, san: sans[i], byYou: c.turn() === you, book, line, ended: true } : null;
     const hit = book.find((b) => b.san === sans[i]);
-    if (!hit) return { index: i, san: sans[i], byYou: c.turn() === you, book, line };
+    if (!hit) return { index: i, san: sans[i], byYou: c.turn() === you, book, line, ended: false };
     line = `${hit.lessonName}: ${hit.lineName}`;
     c.move(sans[i]);
   }
