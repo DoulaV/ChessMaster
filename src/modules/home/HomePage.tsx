@@ -16,7 +16,7 @@ export const MODULES: ModuleInfo[] = [
   { to: '/openings', title: 'Opening Library', icon: '📖', blurb: 'Learn famous openings one at a time: the moves, why, the plan and the traps.', ready: true },
   { to: '/blunder-check', title: 'Blunder Check', icon: '🛡️', blurb: 'Build the habit that stops you hanging pieces and missing threats.', ready: true },
   { to: '/practice', title: 'Practice Games', icon: '🤖', blurb: 'Play bots from 600 to 1600 with a coach watching your moves.', ready: true },
-  { to: '/tactics', title: 'Tactics', icon: '⚡', blurb: '15 puzzles a day by theme: forks, pins, skewers, mates.', ready: false },
+  { to: '/tactics', title: 'Tactics', icon: '⚡', blurb: '15 puzzles a day by theme: forks, pins, skewers, mates.', ready: true },
   { to: '/planning', title: 'Planning', icon: '🧭', blurb: 'Learn to think in plans and candidate moves, not one move at a time.', ready: false },
   { to: '/endgames', title: 'Endgames', icon: '👑', blurb: 'The essential checkmates and pawn endings, practiced until automatic.', ready: false },
   { to: '/game-review', title: 'Game Review', icon: '🔍', blurb: 'Import your Chess.com games and turn your mistakes into puzzles.', ready: false },
@@ -68,6 +68,10 @@ export function HomePage() {
           <div className="flex items-center justify-between gap-3">
             <p className="font-bold">🛡️ Blunder check: one round of each drill</p>
             <Button onClick={() => navigate('/blunder-check')}>Train</Button>
+          </div>
+          <div className="flex items-center justify-between gap-3">
+            <p className="font-bold">⚡ 15 puzzles</p>
+            <Button onClick={() => navigate('/tactics')}>Solve</Button>
           </div>
           <div className="flex items-center justify-between gap-3">
             <p className="font-bold">🤖 One practice game</p>

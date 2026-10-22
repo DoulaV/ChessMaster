@@ -4,7 +4,10 @@ const NAV = [
   { to: '/', label: 'Home', icon: '🏠', end: true, mobile: true },
   { to: '/openings', label: 'Openings', icon: '📖', mobile: true },
   { to: '/practice', label: 'Play', icon: '🤖', mobile: true },
-  { to: '/blunder-check', label: 'Blunders', icon: '🛡️', mobile: true },
+  { to: '/train', label: 'Train', icon: '🏋️', mobile: true, desktop: false },
+  { to: '/tactics', label: 'Tactics', icon: '⚡', mobile: false },
+  { to: '/blunder-check', label: 'Blunders', icon: '🛡️', mobile: false },
+  { to: '/planning', label: 'Planning', icon: '🧭', mobile: false },
   { to: '/analysis', label: 'Analysis', icon: '🔬', mobile: true },
   { to: '/studies', label: 'Studies', icon: '📚', mobile: false },
   { to: '/settings', label: 'Settings', icon: '⚙️', mobile: false },
@@ -18,7 +21,7 @@ export function Layout() {
           <p className="mb-4 flex items-center gap-2 px-4 text-xl font-extrabold">
             <span className="text-2xl text-cm-green">♞</span>ChessMaster
           </p>
-          {NAV.map((n) => (
+          {NAV.filter((n) => n.desktop !== false).map((n) => (
             <NavLink
               key={n.to}
               to={n.to}
