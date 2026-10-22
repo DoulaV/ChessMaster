@@ -14,6 +14,13 @@ export const THEMES = [
   { id: 'removing-defender', name: 'Removing the defender', icon: '🧹', text: 'Capture or chase away the piece that protects something.' },
   { id: 'mate-in-1', name: 'Mate in 1', icon: '♚', text: 'Find the checkmate in one move.' },
   { id: 'mate-in-2', name: 'Mate in 2', icon: '♛', text: 'Find the first move of a two-move checkmate.' },
+  { id: 'double-check', name: 'Double check', icon: '‼️', text: 'Two pieces give check at once: the king must move.' },
+  { id: 'deflection', name: 'Deflection', icon: '↪️', text: 'Force a defender away from the piece or square it guards.' },
+  { id: 'decoy', name: 'Decoy', icon: '🧲', text: 'Lure an enemy piece onto a square where a tactic works.' },
+  { id: 'defensive-move', name: 'Defensive move', icon: '🛡️', text: 'Find the move that saves your position.' },
+  { id: 'smothered-mate', name: 'Smothered mate', icon: '🐴', text: 'A knight mates a king trapped by its own pieces.' },
+  { id: 'anastasia-mate', name: 'Anastasia’s mate', icon: '🏁', text: 'A knight and a rook (or queen) trap the king on the edge.' },
+  { id: 'arabian-mate', name: 'Arabian mate', icon: '🐪', text: 'A rook and a knight mate the king in the corner.' },
 ] as const;
 
 export type ThemeId = (typeof THEMES)[number]['id'];

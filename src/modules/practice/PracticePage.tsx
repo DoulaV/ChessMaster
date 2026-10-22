@@ -1,9 +1,11 @@
 import { Chess, type Color } from 'chess.js';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import { ARROW, Board, HIGHLIGHT, type Arrow } from '../../chess/board/Board';
 import { hangingPieces, mateInOneThreats } from '../../chess/detectors';
-import { MISTAKE_LABEL, QUALITY_LABEL } from '../../chess/explain';
+import { MISTAKE_LABEL, QUALITY_LABEL, mistakeTag } from '../../chess/explain';
+import { lessonById } from '../../data/course/units';
+import { addCoachNote, markGameDay, setLesson } from '../../progress/course';
 import { treeFromSans } from '../../chess/moveTree';
 import { START_FEN, flipTurn, formatLine, isValidFen, other, parseUci } from '../../chess/utils';
 import { CATALOG, LESSONS } from '../../data/openings/catalog';
@@ -29,6 +31,8 @@ interface Setup {
   fen: string;
   time: 'none' | '10' | '15+10' | '30';
   coach: CoachLevel;
+  /** Course lesson this game practices (from /practice?lesson=2.1). */
+  courseLesson?: string;
 }
 
 const TIMES: Record<Setup['time'], { base: number; inc: number } | null> = {
@@ -54,14 +58,19 @@ interface Game {
 export function PracticePage() {
   const [settings] = useSlot(settingsSlot);
   const [games] = useSlot(practiceSlot);
+  const [params] = useSearchParams();
+  const courseLesson = params.get('lesson');
+  const focusLesson = courseLesson ? lessonById(courseLesson) : undefined;
   const [setup, setSetup] = useState<Setup>(() => ({
-    botRating: levelFor(settings.rating).rating,
+    // A lesson game is against a bot a little stronger than you, with the Full coach.
+    botRating: levelFor(settings.rating + (focusLesson ? 100 : 0)).rating,
     color: 'white',
     start: 'normal',
     lessonId: 'italian',
     fen: '',
     time: 'none',
     coach: 'full',
+    courseLesson: focusLesson?.id,
   }));
   const [game, setGame] = useState<Game | null>(null);
 
@@ -76,6 +85,13 @@ export function PracticePage() {
   return (
     <div className="mx-auto max-w-2xl space-y-4">
       <h1 className="text-2xl font-extrabold">Practice</h1>
+      {focusLesson && setup.courseLesson && (
+        <Card className="border-s-4 border-cm-green">
+          <p className="font-bold">Lesson game: {focusLesson.id} {focusLesson.title}</p>
+          <p className="text-sm">🎯 {focusLesson.gameFocus}</p>
+          <p className="mt-1 text-xs text-cm-faint">Any result counts: the point is to use the idea in a real game.</p>
+        </Card>
+      )}
       <Card title="Opponent">
         <div className="mb-2 flex flex-wrap gap-1.5">
           {BOT_LEVELS.map((b) => (
@@ -407,6 +423,11 @@ function PlayGame({ initial, onExit, onRematch }: { initial: Game; onExit: () =>
       };
       update(practiceSlot, (all) => [record, ...all].slice(0, 300));
       if (r) addPuzzles(puzzlesFrom(r, g.you, label));
+      // Tell the coach: it writes a note pointing at the lessons that fix this game's mistakes.
+      const myTags = r ? r.moves.filter((m) => m.color === g.you && (m.quality === 'mistake' || m.quality === 'blunder')).map((m) => mistakeTag(m.fenBefore, m.uci, m.bestUci)) : [];
+      if (g.moves.length >= 10) addCoachNote(`Practice game vs Bot ${g.setup.botRating}`, myTags);
+      if (g.setup.courseLesson) setLesson(g.setup.courseLesson, (x) => ({ ...x, gamePlayed: x.gamePlayed || x.passed }), 'game');
+      else markGameDay();
       setReview(r ?? emptyReview());
     })();
     return () => {
@@ -482,6 +503,7 @@ function PlayGame({ initial, onExit, onRematch }: { initial: Game; onExit: () =>
                 <p className="text-lg font-bold">{checking ? 'Coach is checking your move…' : yourTurn ? 'Your move' : 'Bot is thinking…'}</p>
                 {g.book.inBook && g.book.label && <p className="mt-1 text-sm text-cm-green-light">📖 In book: {g.book.label}</p>}
                 {g.book.alert && <p className="mt-2 rounded-lg bg-cm-yellow/15 p-2 text-sm">📖 {g.book.alert}</p>}
+                {g.setup.courseLesson && <p className="mt-2 rounded-lg bg-cm-green/15 p-2 text-sm">🎯 {lessonById(g.setup.courseLesson)?.gameFocus}</p>}
                 {hint && hint.fen === fen && (
                   <p className="mt-2 rounded-lg bg-cm-blue/20 p-2 text-sm">
                     💡 {hint.words}
@@ -714,7 +736,8 @@ function ReviewScreen({ g, review, think, onRematch, onExit, openAnalysis }: {
           </Card>
 
           <div className="flex flex-wrap gap-2">
-            <Button variant="primary" onClick={onRematch}>Play again</Button>
+            {g.setup.courseLesson && <Button variant="primary" onClick={() => navigate(`/course/${g.setup.courseLesson}`)}>Back to the lesson</Button>}
+            <Button variant={g.setup.courseLesson ? 'secondary' : 'primary'} onClick={onRematch}>Play again</Button>
             <Button onClick={openAnalysis}>🔬 Open in Analysis</Button>
             <Button variant="ghost" onClick={onExit}>New setup</Button>
             <Button variant="ghost" onClick={() => navigate('/')}>Home</Button>

@@ -1,23 +1,21 @@
 // Home = the roadmap and progress dashboard.
 
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link } from 'react-router';
 import { CATALOG, GROUP_LABEL, entry } from '../../data/openings/catalog';
 import type { Group } from '../../data/openings/types';
 import { blunderSlot } from '../../progress/blunder';
-import { botResults, currentStage, mistakeCounts, recentGames, roadmap, streak, todaysPlan, type DashboardInput } from '../../progress/dashboard';
+import { botResults, currentStage, mistakeCounts, recentGames, roadmap, type DashboardInput } from '../../progress/dashboard';
 import { endgamesSlot } from '../../progress/endgames';
 import { MASTERY_DAYS, dueCards, goodDays, masteryPercent, openingProgressSlot, pathSlot, pathStatus, progressOf } from '../../progress/openings';
 import { planningSlot } from '../../progress/planning';
 import { practiceSlot } from '../../progress/practice';
-import { puzzlesSlot } from '../../progress/puzzles';
 import { reviewsSlot } from '../../progress/reviews';
-import { isDue } from '../../progress/srs';
 import { useSlot } from '../../progress/store';
 import { settingsSlot } from '../../progress/slots';
 import { startRating, tacticsSlot } from '../../progress/tactics';
 import { BarList, ColumnChart, LineChart } from '../../ui/charts';
-import { Badge, Button, Card, Progress } from '../../ui/kit';
+import { Badge, Card, Progress } from '../../ui/kit';
 
 interface ModuleInfo {
   to: string;
@@ -40,8 +38,7 @@ export const MODULES: ModuleInfo[] = [
 const STATUS_TONE = { mastered: 'green', current: 'yellow', locked: 'muted', 'coming-soon': 'muted' } as const;
 const STATUS_ICON = { mastered: '✅', current: '▶️', locked: '🔒', 'coming-soon': '⏳' } as const;
 
-export function HomePage() {
-  const navigate = useNavigate();
+export function ProgressPage() {
   const [settings] = useSlot(settingsSlot);
   const [openings] = useSlot(openingProgressSlot);
   const [path] = useSlot(pathSlot);
@@ -51,19 +48,15 @@ export function HomePage() {
   const [practice] = useSlot(practiceSlot);
   const [reviews] = useSlot(reviewsSlot);
   const [endgames] = useSlot(endgamesSlot);
-  const [personal] = useSlot(puzzlesSlot);
   const [openStage, setOpenStage] = useState<string | null>(null);
 
   const input: DashboardInput = { rating: settings.rating, openings, path, blunder, tactics, planning, practice, reviews, endgames };
   const { currentStep, status } = pathStatus(path, openings);
   const currentId = currentStep?.openings.find((id) => status[id] !== 'mastered') ?? null;
   const current = currentId ? entry(currentId) : undefined;
-  const plan = todaysPlan(input, currentId);
   const stages = roadmap(input);
   const stage = currentStage(stages, settings.rating);
-  const days = streak(input);
   const dueMoves = dueCards().length;
-  const duePuzzles = personal.filter((p) => isDue(p.card)).length;
   const ratingSeries = Object.entries(tactics.history).sort(([a], [b]) => a.localeCompare(b)).slice(-30).map(([d, v]) => ({ label: d.slice(5), value: v }));
   const games = recentGames(input).slice(0, 20).reverse();
   const bots = botResults(input);
@@ -74,7 +67,7 @@ export function HomePage() {
     <div className="mx-auto max-w-5xl space-y-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold">Welcome back</h1>
+          <h1 className="text-2xl font-extrabold">Progress</h1>
           <p className="text-cm-muted">
             Rating {settings.rating} (Chess.com) · goal 1500 · stage: <b className="text-white">{stage.title}</b>
           </p>
@@ -85,12 +78,7 @@ export function HomePage() {
         </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        <Card>
-          <p className="text-sm text-cm-muted">Daily streak</p>
-          <p className="text-5xl font-extrabold">🔥 {days}</p>
-          <p className="text-xs text-cm-faint">{days ? 'days in a row' : 'Train today to start a streak'}</p>
-        </Card>
+      <div className="grid gap-3 sm:grid-cols-2">
         <Card>
           <p className="text-sm text-cm-muted">Puzzle rating</p>
           <p className="text-3xl font-extrabold">{tactics.rating || startRating(settings.rating)}</p>
@@ -102,28 +90,6 @@ export function HomePage() {
           <p className="text-xs text-cm-faint">{dueMoves ? `${dueMoves} moves to review today` : 'No reviews due'}</p>
         </Card>
       </div>
-
-      <Card title="Today’s training plan (about 30 to 45 minutes)">
-        <ul className="divide-y divide-cm-line">
-          {plan.map((p) => (
-            <li key={p.id} className="flex items-center gap-3 py-2">
-              <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${p.done ? 'bg-cm-green text-white' : 'bg-cm-panel2 text-cm-faint'}`}>{p.done ? '✓' : ''}</span>
-              <span className="min-w-0 flex-1">
-                <span className={`block font-bold ${p.done ? 'text-cm-muted line-through' : ''}`}>{p.label}</span>
-                <span className="text-xs text-cm-faint">{p.minutes}{p.id === 'opening' && current ? ` · ${current.name}` : ''}</span>
-              </span>
-              {!p.done && <Button size="sm" onClick={() => navigate(p.to)}>Go</Button>}
-            </li>
-          ))}
-        </ul>
-        {(dueMoves > 0 || duePuzzles > 0) && (
-          <p className="mt-2 text-sm text-cm-muted">
-            Bonus: {dueMoves > 0 && <Link className="underline" to="/openings/review">{dueMoves} opening moves to review</Link>}
-            {dueMoves > 0 && duePuzzles > 0 && ' · '}
-            {duePuzzles > 0 && <Link className="underline" to="/tactics">{duePuzzles} of your own puzzles due</Link>}
-          </p>
-        )}
-      </Card>
 
       <div className="grid gap-3 lg:grid-cols-2">
         <Card title="📖 Current opening">

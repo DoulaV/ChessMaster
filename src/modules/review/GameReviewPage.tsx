@@ -2,12 +2,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { ARROW, Board, type Arrow } from '../../chess/board/Board';
 import { MoveList } from '../../chess/board/MoveList';
-import { MISTAKE_LABEL, QUALITY_LABEL } from '../../chess/explain';
+import { MISTAKE_LABEL, QUALITY_LABEL, mistakeTag } from '../../chess/explain';
+import { addCoachNote } from '../../progress/course';
 import { ROOT, lineEnd, parsePgn, pathTo, type MoveTree } from '../../chess/moveTree';
 import { getEngine } from '../../engine/engine';
 import { addPuzzles } from '../../progress/puzzles';
 import { reviewsSlot, type ReviewedGame } from '../../progress/reviews';
-import { update, useSlot } from '../../progress/store';
+import { read, update, useSlot } from '../../progress/store';
 import { settingsSlot } from '../../progress/slots';
 import { chessComGames, lichessGames, pastedGame, resultFor, type ImportedGame } from '../../services/games';
 import { parsePgn as checkPgn } from '../../chess/moveTree';
@@ -175,6 +176,7 @@ function ReviewOne({ game, onBack }: { game: ImportedGame; onBack: () => void })
     setDeparture(bookDeparture(startFen, sans, you));
     reviewGame(getEngine(), startFen, sans, you, (d, t) => alive && setProgress(d / t)).then((r) => {
       if (!alive) return;
+      const firstTime = !read(reviewsSlot)[game.id];
       setReview(r);
       const dep = bookDeparture(startFen, sans, you);
       const summary: ReviewedGame = {
@@ -192,6 +194,8 @@ function ReviewOne({ game, onBack }: { game: ImportedGame; onBack: () => void })
       };
       update(reviewsSlot, (all) => ({ ...all, [game.id]: summary }));
       addPuzzles(puzzlesFrom(r, you, `Your ${game.site} game vs ${summary.opponent}`, 'review'));
+      const myTags = r.moves.filter((m) => m.color === you && (m.quality === 'mistake' || m.quality === 'blunder')).map((m) => mistakeTag(m.fenBefore, m.uci, m.bestUci));
+      if (firstTime) addCoachNote(`Your game vs ${summary.opponent}`, myTags);
       const firstBad = r.topMistakes[0];
       if (firstBad) setCurrent(ids[r.moves.indexOf(firstBad.move)] ?? ROOT);
     });

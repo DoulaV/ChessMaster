@@ -1,7 +1,8 @@
 import { NavLink, Outlet } from 'react-router';
 
 const NAV = [
-  { to: '/', label: 'Home', icon: '🏠', end: true, mobile: true },
+  { to: '/', label: 'Coach', icon: '🧑‍🏫', end: true, mobile: true },
+  { to: '/progress', label: 'Progress', icon: '📈', mobile: false },
   { to: '/openings', label: 'Openings', icon: '📖', mobile: true },
   { to: '/practice', label: 'Play', icon: '🤖', mobile: true },
   { to: '/train', label: 'Train', icon: '🏋️', mobile: true, desktop: false },

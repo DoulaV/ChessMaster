@@ -3,7 +3,9 @@ import { AnalysisPage } from './modules/analysis/AnalysisPage';
 import { StudiesPage } from './modules/analysis/StudiesPage';
 import { BlunderPage } from './modules/blunder/BlunderPage';
 import { EndgamesPage } from './modules/endgames/EndgamesPage';
-import { HomePage } from './modules/home/HomePage';
+import { CoursePage } from './modules/course/CoursePage';
+import { LessonPage } from './modules/course/LessonPage';
+import { ProgressPage } from './modules/home/HomePage';
 import { PlanningPage } from './modules/planning/PlanningPage';
 import { PracticePage } from './modules/practice/PracticePage';
 import { GameReviewPage } from './modules/review/GameReviewPage';
@@ -22,7 +24,9 @@ export function App() {
     <HashRouter>
       <Routes>
         <Route element={<Layout />}>
-          <Route index element={<HomePage />} />
+          <Route index element={<CoursePage />} />
+          <Route path="course/:id" element={<LessonPage />} />
+          <Route path="progress" element={<ProgressPage />} />
           <Route path="openings" element={<OpeningsPage />} />
           <Route path="openings/review" element={<ReviewPage />} />
           <Route path="openings/recognize" element={<RecognizePage />} />
@@ -41,7 +45,7 @@ export function App() {
           <Route path="analysis" element={<AnalysisPage />} />
           <Route path="studies" element={<StudiesPage />} />
           <Route path="settings" element={<SettingsPage />} />
-          <Route path="*" element={<HomePage />} />
+          <Route path="*" element={<CoursePage />} />
         </Route>
       </Routes>
     </HashRouter>

@@ -7,7 +7,7 @@
 //     | node scripts/build-puzzles.mjs
 
 import { Chess } from 'chess.js';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import readline from 'node:readline';
@@ -30,7 +30,18 @@ const THEMES = {
   'removing-defender': ['capturingDefender'],
   'mate-in-1': ['mateIn1'],
   'mate-in-2': ['mateIn2'],
+  // Used by the Course (Unit 2) and Tactics.
+  'double-check': ['doubleCheck'],
+  deflection: ['deflection'],
+  decoy: ['attraction'],
+  'defensive-move': ['defensiveMove'],
+  'smothered-mate': ['smotheredMate'],
+  'anastasia-mate': ['anastasiaMate'],
+  'arabian-mate': ['arabianMate'],
 };
+// Optional: only build some themes, e.g. `node scripts/build-puzzles.mjs deflection,decoy`.
+const only = process.argv[2] ? new Set(process.argv[2].split(',')) : null;
+for (const t of Object.keys(THEMES)) if (only && !only.has(t)) delete THEMES[t];
 
 // Lichess opening tags -> our opening ids.
 const OPENINGS = [
@@ -126,5 +137,12 @@ for (const theme of Object.keys(THEMES)) {
   writeFileSync(join(out, `${theme}.json`), JSON.stringify(list));
   index[theme] = list.length;
 }
-writeFileSync(join(out, 'index.json'), JSON.stringify({ built: new Date().toISOString().slice(0, 10), counts: index }));
+const indexFile = join(out, 'index.json');
+let previous = {};
+try {
+  previous = JSON.parse(readFileSync(indexFile, 'utf8')).counts ?? {};
+} catch {
+  /* first build */
+}
+writeFileSync(indexFile, JSON.stringify({ built: new Date().toISOString().slice(0, 10), counts: { ...previous, ...index } }));
 console.log('done', lines, 'read', index);
