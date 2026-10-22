@@ -21,6 +21,9 @@ export interface PracticeGame {
   hints: number;
   tags: MistakeTag[];
   pgn: string;
+  /** "Think with me": your moves with a coach on, and how many you found without opening any help. */
+  coachedMoves?: number;
+  independentMoves?: number;
 }
 
 export const practiceSlot: Slot<PracticeGame[]> = {

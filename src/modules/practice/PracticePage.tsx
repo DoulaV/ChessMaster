@@ -16,9 +16,9 @@ import { settingsSlot } from '../../progress/slots';
 import { BoardLayout, PlayerBar } from '../../ui/BoardLayout';
 import { Badge, Button, Card, Modal, Progress, Segmented, Tip } from '../../ui/kit';
 import { analysisPath } from '../analysis/handoff';
-import { Checklist } from '../blunder/Checklist';
 import { bookMovesFor, pickBookMove } from './book';
 import { checkMove, hintWords } from './coach';
+import { ThinkingCoach, type CoachMarks } from './ThinkingCoach';
 import { puzzlesFrom, reviewGame, squaresOf, type GameReview } from './review';
 
 interface Setup {
@@ -168,6 +168,14 @@ function PlayGame({ initial, onExit, onRematch }: { initial: Game; onExit: () =>
   const [checking, setChecking] = useState(false);
   const [warning, setWarning] = useState<{ sentences: string[]; loss: number; bestUci: string } | null>(null);
   const [hint, setHint] = useState<{ fen: string; level: number; bestUci: string; words: string } | null>(null);
+  // "Think with me" coach state.
+  const [marks, setMarks] = useState<CoachMarks>({ squares: [], moves: [] });
+  const [plan, setPlan] = useState('');
+  const [prevPlan, setPrevPlan] = useState('');
+  const [safetyMode, setSafetyMode] = useState(false);
+  const [safety, setSafety] = useState<{ uci: string; san: string; loss: number; sentences: string[]; free: string[] } | null>(null);
+  const [helpedHere, setHelpedHere] = useState(false);
+  const [think, setThink] = useState({ moves: 0, independent: 0 });
   const [review, setReview] = useState<GameReview | null>(null);
   const [progress, setProgress] = useState(0);
   const runId = useRef(0);
@@ -269,8 +277,16 @@ function PlayGame({ initial, onExit, onRematch }: { initial: Game; onExit: () =>
     };
   }, [fen, turn, g.over, g.you, warning, checking]);
 
+  /** Count a move toward the "found it on my own" meter and carry the plan forward. */
+  function noteYourMove() {
+    setThink((t) => ({ moves: t.moves + 1, independent: t.independent + (helpedHere ? 0 : 1) }));
+    setHelpedHere(false);
+    setPrevPlan(plan);
+    setMarks({ squares: [], moves: [] });
+  }
+
   function onMove(uci: string) {
-    if (!yourTurn || thinking || checking || warning) return false;
+    if (!yourTurn || thinking || checking || warning || safety) return false;
     const before = fen;
     let san: string;
     try {
@@ -278,6 +294,19 @@ function PlayGame({ initial, onExit, onRematch }: { initial: Game; onExit: () =>
     } catch {
       return false;
     }
+    if (safetyMode && g.setup.coach !== 'none') {
+      // Check the move without playing it.
+      setChecking(true);
+      checkMove(getBackgroundEngine(), before, uci, 'full').then((r) => {
+        setChecking(false);
+        const c = new Chess(before);
+        c.move(parseUci(uci));
+        const free = hangingPieces(c.fen(), g.you).map((h) => `your ${h.piece === 'p' ? 'pawn' : { n: 'knight', b: 'bishop', r: 'rook', q: 'queen', k: 'king' }[h.piece]} on ${h.square} (${h.capture})`);
+        setSafety({ uci, san, loss: r.loss, sentences: r.sentences, free });
+      });
+      return false;
+    }
+    noteYourMove();
     applyMove(san, true);
     if (g.setup.coach !== 'none') {
       setChecking(true);
@@ -287,6 +316,15 @@ function PlayGame({ initial, onExit, onRematch }: { initial: Game; onExit: () =>
       });
     }
     return true;
+  }
+
+  function playChecked() {
+    if (!safety) return;
+    const san = safety.san;
+    setSafety(null);
+    setSafetyMode(false);
+    noteYourMove();
+    applyMove(san, true);
   }
 
   function takeBack(countIt = true) {
@@ -350,6 +388,8 @@ function PlayGame({ initial, onExit, onRematch }: { initial: Game; onExit: () =>
         mistakes: r?.counts[g.you].mistake ?? 0,
         takebacks: g.takebacks,
         hints: 3 - g.hintsLeft,
+        coachedMoves: think.moves,
+        independentMoves: think.independent,
         tags: r?.topMistakes.map((m) => m.tag) ?? [],
         pgn: pgnOf(g, formatLine(g.startFen, g.moves)),
       };
@@ -376,6 +416,15 @@ function PlayGame({ initial, onExit, onRematch }: { initial: Game; onExit: () =>
     if (hint.level >= 2) highlights[from] = HIGHLIGHT.info;
     if (hint.level >= 3) arrows.push({ startSquare: from, endSquare: to, color: ARROW.hint });
   }
+  if (g.setup.coach !== 'none' && yourTurn) {
+    for (const sq of marks.squares) highlights[sq] = HIGHLIGHT.warn;
+    for (const m of marks.moves) arrows.push({ startSquare: m.from, endSquare: m.to, color: ARROW.hint });
+    if (marks.best) arrows.push({ startSquare: marks.best.from, endSquare: marks.best.to, color: ARROW.engine });
+  }
+  if (safety) {
+    const { from, to } = squaresOf(safety.uci);
+    arrows.push({ startSquare: from, endSquare: to, color: safety.loss >= 150 ? ARROW.threat : ARROW.good });
+  }
   if (warning) {
     const hist = chess.history({ verbose: true });
     const last = hist[hist.length - 1];
@@ -383,6 +432,8 @@ function PlayGame({ initial, onExit, onRematch }: { initial: Game; onExit: () =>
   }
   const hist = chess.history({ verbose: true });
   const last = hist[hist.length - 1];
+  const openingLesson = LESSONS.find((l) => l.id === g.lessonId) ?? LESSONS.find((l) => g.book.label.startsWith(l.name + ':'));
+  const openingPlan = openingLesson && openingLesson.side === orientation ? openingLesson.plan.summary : null;
   const fmtClock = (ms: number) => `${Math.floor(ms / 60000)}:${String(Math.floor((ms % 60000) / 1000)).padStart(2, '0')}`;
   const clockBadge = (c: Color) =>
     g.clock ? (
@@ -390,7 +441,7 @@ function PlayGame({ initial, onExit, onRematch }: { initial: Game; onExit: () =>
     ) : undefined;
 
   if (review) {
-    return <ReviewScreen g={g} review={review} onRematch={() => onRematch(g)} onExit={onExit} openAnalysis={() => {
+    return <ReviewScreen g={g} review={review} think={think} onRematch={() => onRematch(g)} onExit={onExit} openAnalysis={() => {
       const { tree, last: lastId } = treeFromSans(g.moves, g.startFen);
       navigate(analysisPath({ tree, current: lastId, orientation, title: `Practice vs ${g.setup.botRating}` }));
     }} />;
@@ -433,13 +484,13 @@ function PlayGame({ initial, onExit, onRematch }: { initial: Game; onExit: () =>
                   </p>
                 )}
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <Button
+                  {g.setup.coach === 'none' && <Button
                     size="sm"
                     onClick={askHint}
                     disabled={!yourTurn || (g.hintsLeft <= 0 && !(hint && hint.fen === fen)) || (hint?.fen === fen && hint.level >= 3)}
                   >
                     💡 Hint {hint && hint.fen === fen ? `(${hint.level}/3)` : `(${g.hintsLeft} left)`}
-                  </Button>
+                  </Button>}
                   <Button size="sm" onClick={() => takeBack(true)} disabled={g.moves.length === 0 || thinking}>↩ Takeback</Button>
                   <Button size="sm" variant="ghost" onClick={resign}>🏳 Resign</Button>
                 </div>
@@ -448,10 +499,28 @@ function PlayGame({ initial, onExit, onRematch }: { initial: Game; onExit: () =>
                 )}
               </Card>
             )}
+            {g.setup.coach !== 'none' && !g.over && yourTurn && !thinking && (
+              <ThinkingCoach
+                fen={fen}
+                last={last ?? null}
+                openingPlan={openingPlan}
+                plan={plan}
+                prevPlan={prevPlan}
+                onPlan={setPlan}
+                onMarks={setMarks}
+                onReveal={() => setHelpedHere(true)}
+                safetyMode={safetyMode}
+                onSafetyMode={setSafetyMode}
+              />
+            )}
+            {g.setup.coach !== 'none' && !g.over && think.moves > 0 && (
+              <p className="px-1 text-xs text-cm-faint">
+                🌱 Moves you found on your own: {think.independent} of {think.moves}. The goal is to need the coach less and less.
+              </p>
+            )}
             {g.setup.coach === 'full' && !g.over && (
-              <Card title="Before you move">
-                <Checklist compact />
-                <p className="mt-2 text-xs text-cm-faint">
+              <Card title="Board colors">
+                <p className="text-xs text-cm-faint">
                   <span className="me-1 inline-block h-3 w-3 rounded-sm" style={{ background: HIGHLIGHT.danger }} /> your piece can be taken for free
                   <span className="ms-3 me-1 inline-block h-3 w-3 rounded-sm" style={{ background: HIGHLIGHT.warn }} /> they threaten mate there
                 </p>
@@ -463,6 +532,26 @@ function PlayGame({ initial, onExit, onRematch }: { initial: Game; onExit: () =>
           </>
         }
       />
+      <Modal open={!!safety} onClose={() => setSafety(null)} title="🛡️ Safety check">
+        {safety && (
+          <div className="space-y-2">
+            <p className="text-lg font-bold">
+              {safety.loss >= 150 ? `⚠️ ${safety.san} is risky.` : safety.loss >= 60 ? `${safety.san} is playable, but there may be better.` : `✅ ${safety.san} looks safe.`}
+            </p>
+            <p className="text-sm">
+              Question 4 of the checklist, after {safety.san}, can they take anything for free?{' '}
+              {safety.free.length ? <b>Yes: {safety.free.join(', ')}.</b> : <b>No.</b>}
+            </p>
+            {safety.sentences.map((t, i) => (
+              <p key={i} className="text-sm">{t}</p>
+            ))}
+            <div className="flex flex-wrap gap-2 pt-2">
+              <Button variant={safety.loss >= 150 ? 'secondary' : 'primary'} onClick={playChecked}>Play {safety.san}</Button>
+              <Button variant={safety.loss >= 150 ? 'primary' : 'secondary'} onClick={() => setSafety(null)}>Think again</Button>
+            </div>
+          </div>
+        )}
+      </Modal>
       <Modal open={!!warning} onClose={() => setWarning(null)} title="⚠️ Careful!">
         {warning && (
           <div className="space-y-2">
@@ -514,9 +603,10 @@ function emptyReview(): GameReview {
   return { moves: [], accuracy: { w: null, b: null }, counts: { w: { inaccuracy: 0, mistake: 0, blunder: 0 }, b: { inaccuracy: 0, mistake: 0, blunder: 0 } }, topMistakes: [], turningPoint: null, winGraph: [] };
 }
 
-function ReviewScreen({ g, review, onRematch, onExit, openAnalysis }: {
+function ReviewScreen({ g, review, think, onRematch, onExit, openAnalysis }: {
   g: Game;
   review: GameReview;
+  think: { moves: number; independent: number };
   onRematch: () => void;
   onExit: () => void;
   openAnalysis: () => void;
@@ -562,6 +652,13 @@ function ReviewScreen({ g, review, onRematch, onExit, openAnalysis }: {
             <p className="mt-2 text-sm">
               Your blunders: <b>{review.counts[you].blunder}</b> · mistakes: <b>{review.counts[you].mistake}</b> · inaccuracies: <b>{review.counts[you].inaccuracy}</b>
             </p>
+            {g.setup.coach !== 'none' && think.moves > 0 && (
+              <p className="mt-2 text-sm">
+                🌱 You found <b>{think.independent} of {think.moves}</b> moves without opening the coach.
+                {think.independent / think.moves >= 0.8 && g.setup.coach === 'full' && ' You’re thinking for yourself now: try Light coach next game.'}
+                {think.independent / think.moves >= 0.8 && g.setup.coach === 'light' && ' Great independence: try a game with No help.'}
+              </p>
+            )}
             {result === 'win' && up && next && (
               <Tip>🎉 3 wins in your last 5 games against {g.setup.botRating}. You’re ready for the {next} bot!</Tip>
             )}

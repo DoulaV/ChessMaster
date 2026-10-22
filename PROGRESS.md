@@ -87,9 +87,24 @@
   suggestion after 3 wins in the last 5 games.
 - Navigation: Play added to the bottom bar; Studies and Settings are buttons on Home (phone).
 
+### Phase 4: Tactics, Planning, Think-with-me coach
+- Tactics: 22,500 Lichess puzzles (CC0) rated 800 to 1600 in 9 themes (built by
+  `scripts/build-puzzles.mjs`), adaptive Elo-style puzzle rating, daily set of 15 (due
+  personal puzzles first, then weakest themes), theme practice, optional "only openings I've
+  studied" filter, personal puzzles from practice games with spaced repetition.
+- Planning: 7 lessons with 2 examples each, 36 "What's the plan?" positions from the ends of
+  real lines in all 24 openings (first moves checked with Stockfish), Candidate moves
+  (enter 3 moves, Stockfish ranks them).
+- Practice Mode, coaching modes: unlimited "Think with me" coach: 6 questions answered from
+  the position (opponent's last move, danger, checks, captures with exchange counting,
+  threats, worst piece / opening plan), a plan that carries over to the next move, a safety
+  check that tests a move before it counts, "show the best move" with a reason, and a meter
+  of moves found without help (suggests Light coach / No help when you're ready).
+  The 3-hint limit now only applies to No help games.
+- Phone navigation: Home, Openings, Play, Train (Tactics, Blunder Check, Planning), Analysis.
+
 ## Next
-- Tactics by theme (Lichess puzzle database), including your personal puzzles.
-- Then Planning, Endgames, Game Review, Dashboard.
+- Endgames, Game Review (Lichess and Chess.com import), Dashboard.
 
 ## Known issues / notes
 - Queen's Gambit Accepted is not in the 15-step path; it unlocks as a bonus after the QGD.
