@@ -19,15 +19,15 @@ export function SettingsPage() {
           inputMode="numeric"
           min={100}
           max={3000}
-          className="mt-1 w-32 rounded border p-2 dark:bg-neutral-900"
+          className="mt-1 w-32 rounded border p-2"
           value={s.rating}
           onChange={(e) => set('rating', Math.max(100, Math.min(3000, Number(e.target.value) || 800)))}
         />
-        <p className="mt-1 text-xs text-neutral-500">Used to set opening depth, puzzle level and bot suggestions.</p>
+        <p className="mt-1 text-xs text-cm-faint">Used to set opening depth, puzzle level and bot suggestions.</p>
         <label className="mt-4 block text-sm font-medium">Chess.com username</label>
-        <input className="mt-1 w-full rounded border p-2 dark:bg-neutral-900" value={s.chesscomUser} onChange={(e) => set('chesscomUser', e.target.value.trim())} autoCapitalize="none" />
+        <input className="mt-1 w-full rounded border p-2" value={s.chesscomUser} onChange={(e) => set('chesscomUser', e.target.value.trim())} autoCapitalize="none" />
         <label className="mt-3 block text-sm font-medium">Lichess username (optional)</label>
-        <input className="mt-1 w-full rounded border p-2 dark:bg-neutral-900" value={s.lichessUser} onChange={(e) => set('lichessUser', e.target.value.trim())} autoCapitalize="none" />
+        <input className="mt-1 w-full rounded border p-2" value={s.lichessUser} onChange={(e) => set('lichessUser', e.target.value.trim())} autoCapitalize="none" />
       </Card>
 
       <Card title="Board colors">
@@ -61,14 +61,14 @@ export function SettingsPage() {
         </ol>
         {s.lichessToken ? (
           <div className="flex items-center gap-2">
-            <span className="text-sm text-emerald-700 dark:text-emerald-400">✅ Token saved on this device.</span>
+            <span className="text-sm text-cm-green-light">✅ Token saved on this device.</span>
             <Button size="sm" variant="ghost" onClick={() => set('lichessToken', '')}>Remove</Button>
           </div>
         ) : (
           <div className="flex gap-2">
             <input
               type="password"
-              className="w-full rounded border p-2 dark:bg-neutral-900"
+              className="w-full rounded border p-2"
               placeholder="lip_..."
               value={tokenDraft}
               onChange={(e) => setTokenDraft(e.target.value)}

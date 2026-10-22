@@ -1,10 +1,37 @@
 @import 'tailwindcss';
 
-@custom-variant dark (@media (prefers-color-scheme: dark));
+/* Dark theme in the style of popular chess sites. */
+@theme {
+  --color-cm-bg: #302e2b;
+  --color-cm-panel: #262522;
+  --color-cm-panel2: #3c3a37;
+  --color-cm-hover: #4b4847;
+  --color-cm-line: #45423e;
+  --color-cm-text: #ffffff;
+  --color-cm-muted: #bababa;
+  --color-cm-faint: #8b8987;
+  --color-cm-green: #81b64c;
+  --color-cm-green-dark: #45753c;
+  --color-cm-green-light: #a3d160;
+  --color-cm-red: #e02828;
+  --color-cm-yellow: #f7c631;
+  --color-cm-blue: #5d9be3;
+  --color-cm-best: #95bb4a;
+}
 
 html {
   -webkit-tap-highlight-color: transparent;
+  color-scheme: dark;
 }
 body {
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  background: var(--color-cm-bg);
+  color: var(--color-cm-text);
+  font-family: 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', sans-serif;
+}
+input,
+textarea,
+select {
+  background: var(--color-cm-panel2);
+  border-color: var(--color-cm-line);
+  color: var(--color-cm-text);
 }

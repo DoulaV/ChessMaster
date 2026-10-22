@@ -15,7 +15,7 @@ export function EvalBar({ score, orientation }: { score: Score | null; orientati
   const flipped = orientation === 'black';
   return (
     <div
-      className={`relative flex w-5 shrink-0 overflow-hidden rounded border border-neutral-400 bg-neutral-700 dark:border-neutral-600 ${flipped ? 'flex-col' : 'flex-col-reverse'}`}
+      className={`relative flex w-5 shrink-0 overflow-hidden rounded border border-neutral-400 bg-neutral-700 ${flipped ? 'flex-col' : 'flex-col-reverse'}`}
       aria-label={score ? `Evaluation ${formatScore(score)}` : 'Evaluation'}
     >
       <div className="bg-white transition-all duration-500" style={{ height: pct }} />

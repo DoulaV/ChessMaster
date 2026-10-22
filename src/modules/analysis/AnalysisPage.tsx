@@ -185,8 +185,8 @@ export function AnalysisPage() {
             ⇅ Flip
           </Button>
         </div>
-        <p className="text-sm text-neutral-500">
-          {title && <b className="me-2 text-neutral-800 dark:text-neutral-200">{title}</b>}
+        <p className="text-sm text-cm-faint">
+          {title && <b className="me-2 text-white">{title}</b>}
           {turnOf(fen) === 'w' ? 'White' : 'Black'} to move.
         </p>
       </div>
@@ -235,7 +235,7 @@ export function AnalysisPage() {
             <MoveList tree={tree} current={current} onSelect={setCurrent} />
           </div>
           {current !== ROOT && (
-            <div className="mt-2 flex flex-wrap gap-1 border-t border-neutral-200 pt-2 dark:border-neutral-700">
+            <div className="mt-2 flex flex-wrap gap-1 border-t border-cm-line pt-2">
               <Button size="sm" variant="ghost" onClick={() => setModal('comment')}>💬 Comment</Button>
               <Button size="sm" variant="ghost" onClick={() => setTree(promote(tree, current))}>⬆ Make main line</Button>
               <Button
@@ -302,9 +302,9 @@ export function AnalysisPage() {
       <Modal open={modal === 'export'} onClose={() => setModal(null)} title="Export">
         <div className="space-y-3">
           <label className="block text-sm font-medium">FEN (this position)</label>
-          <textarea readOnly className="w-full rounded border p-2 font-mono text-xs dark:bg-neutral-900" rows={2} value={fen} />
+          <textarea readOnly className="w-full rounded border p-2 font-mono text-xs" rows={2} value={fen} />
           <label className="block text-sm font-medium">PGN (all moves and side lines)</label>
-          <textarea readOnly className="w-full rounded border p-2 font-mono text-xs dark:bg-neutral-900" rows={6} value={toPgn(tree)} />
+          <textarea readOnly className="w-full rounded border p-2 font-mono text-xs" rows={6} value={toPgn(tree)} />
           <div className="flex flex-wrap gap-2">
             <Button size="sm" onClick={async () => flash((await copyText(fen)) ? 'FEN copied' : 'Could not copy')}>Copy FEN</Button>
             <Button size="sm" onClick={async () => flash((await copyText(toPgn(tree))) ? 'PGN copied' : 'Could not copy')}>Copy PGN</Button>
@@ -357,7 +357,7 @@ export function AnalysisPage() {
       />
 
       {toast && (
-        <div className="fixed inset-x-0 bottom-20 z-50 mx-auto w-fit rounded-full bg-neutral-900 px-4 py-2 text-sm text-white shadow-lg">
+        <div className="fixed inset-x-0 bottom-20 z-50 mx-auto w-fit rounded-full bg-black px-4 py-2 text-sm text-white shadow-lg">
           {toast}
         </div>
       )}
@@ -393,13 +393,13 @@ function ImportModal({ open, onClose, onLoad }: {
   return (
     <Modal open={open} onClose={onClose} title="Paste a FEN or PGN">
       <textarea
-        className="w-full rounded border p-2 font-mono text-xs dark:bg-neutral-900"
+        className="w-full rounded border p-2 font-mono text-xs"
         rows={8}
         placeholder={`${START_FEN}\n\nor\n\n1. e4 e5 2. Nf3 Nc6 3. Bc4`}
         value={text}
         onChange={(e) => setText(e.target.value)}
       />
-      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-1 text-sm text-red-400">{error}</p>}
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
         <label className="cursor-pointer text-sm underline">
           Upload a .pgn file
@@ -430,7 +430,7 @@ function SaveModal({ open, defaultTitle, onClose, onSave }: {
   return (
     <Modal open={open} onClose={onClose} title="Save to your studies">
       <input
-        className="w-full rounded border p-2 dark:bg-neutral-900"
+        className="w-full rounded border p-2"
         placeholder="Name, e.g. 'Fork idea from my game'"
         value={t}
         onChange={(e) => setT(e.target.value)}
@@ -453,7 +453,7 @@ function CommentModal({ open, initial, onClose, onSave }: {
   useEffect(() => setC(initial), [initial, open]);
   return (
     <Modal open={open} onClose={onClose} title="Comment on this move">
-      <textarea className="w-full rounded border p-2 dark:bg-neutral-900" rows={4} value={c} onChange={(e) => setC(e.target.value)} autoFocus />
+      <textarea className="w-full rounded border p-2" rows={4} value={c} onChange={(e) => setC(e.target.value)} autoFocus />
       <div className="mt-3 flex justify-end">
         <Button variant="primary" onClick={() => onSave(c.trim())}>Save comment</Button>
       </div>

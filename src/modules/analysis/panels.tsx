@@ -27,15 +27,15 @@ export function EngineLines({ fen, lines, running, depth, onDepth, onPlay }: {
       title={
         <span className="flex items-center gap-2">
           Engine
-          {lines[0] && <span className="font-mono text-sm text-neutral-500">depth {lines[0].depth}</span>}
-          {running && <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />}
+          {lines[0] && <span className="font-mono text-sm text-cm-faint">depth {lines[0].depth}</span>}
+          {running && <span className="h-2 w-2 animate-pulse rounded-full bg-cm-green" />}
         </span>
       }
       actions={
         <label className="flex items-center gap-1 text-sm">
           Depth
           <select
-            className="rounded border border-neutral-300 bg-transparent px-1 py-1 dark:border-neutral-600"
+            className="rounded border border-cm-line bg-transparent px-1 py-1"
             value={depth}
             onChange={(e) => onDepth(Number(e.target.value))}
           >
@@ -49,7 +49,7 @@ export function EngineLines({ fen, lines, running, depth, onDepth, onPlay }: {
       {over ? (
         <p className="text-sm">{c.isCheckmate() ? 'Checkmate.' : 'The game is over (draw).'}</p>
       ) : !lines.length ? (
-        <p className="text-sm text-neutral-500">Thinking…</p>
+        <p className="text-sm text-cm-faint">Thinking…</p>
       ) : (
         <ol className="space-y-1.5">
           {lines.map((l) => (
@@ -126,18 +126,18 @@ export function ExplainPanel({ parentFen, uci, auto }: {
 
   if (!parentFen || !uci) return null;
   const color = {
-    best: 'text-emerald-700 dark:text-emerald-400',
-    good: 'text-emerald-700 dark:text-emerald-400',
-    inaccuracy: 'text-yellow-600',
-    mistake: 'text-orange-600',
-    blunder: 'text-red-600',
+    best: 'text-cm-green-light',
+    good: 'text-cm-green-light',
+    inaccuracy: 'text-cm-yellow',
+    mistake: 'text-orange-400',
+    blunder: 'text-red-400',
   };
   return (
     <Card title="About this move">
       {!auto && !asked ? (
         <Button size="sm" onClick={() => setAsked(true)}>Explain this move</Button>
       ) : busy || !result ? (
-        <p className="text-sm text-neutral-500">Checking the move…</p>
+        <p className="text-sm text-cm-faint">Checking the move…</p>
       ) : (
         <div className="space-y-1.5 text-sm">
           <p className={`font-semibold ${color[result.quality]}`}>{QUALITY_LABEL[result.quality]}</p>
@@ -187,7 +187,7 @@ export function ThreatPanel({ threat }: { threat: ReturnType<typeof useThreat> }
   return (
     <Card title="Threat view">
       {!threat ? (
-        <p className="text-sm text-neutral-500">Looking at what your opponent wants…</p>
+        <p className="text-sm text-cm-faint">Looking at what your opponent wants…</p>
       ) : (
         <div className="space-y-1 text-sm">
           <p>
@@ -196,7 +196,7 @@ export function ThreatPanel({ threat }: { threat: ReturnType<typeof useThreat> }
           {threat.words.map((w, i) => (
             <p key={i}>{w}</p>
           ))}
-          {!threat.words.length && <p className="text-neutral-500">No direct threat to your pieces right now.</p>}
+          {!threat.words.length && <p className="text-cm-faint">No direct threat to your pieces right now.</p>}
         </div>
       )}
     </Card>
@@ -284,7 +284,7 @@ export function ThinkFirstPanel({ fen, guess, onGuess, onReveal }: {
       </Card>
     );
   }
-  if (done) return <Card title="Think first"><p className="text-sm text-neutral-500">Comparing with the engine…</p></Card>;
+  if (done) return <Card title="Think first"><p className="text-sm text-cm-faint">Comparing with the engine…</p></Card>;
   return (
     <Card title="Think first">
       <p className="mb-2 text-sm">1. Who is better here?</p>
@@ -354,7 +354,7 @@ export function OpeningPanel({ pathFens, fen, onPlay }: {
       <p className="mb-2 text-sm">
         {name ? (
           <>
-            <span className="me-1 rounded bg-neutral-200 px-1.5 py-0.5 font-mono text-xs dark:bg-neutral-700">{name.eco}</span>
+            <span className="me-1 rounded bg-cm-panel2 px-1.5 py-0.5 font-mono text-xs">{name.eco}</span>
             {name.name}
           </>
         ) : pathFens.length > 1 ? (
@@ -364,24 +364,24 @@ export function OpeningPanel({ pathFens, fen, onPlay }: {
         )}
       </p>
       {error === 'no-token' && (
-        <p className="text-xs text-neutral-500">
+        <p className="text-xs text-cm-faint">
           To see how often each move is played by players at your level, add a free Lichess token in{' '}
           <Link className="underline" to="/settings">Settings</Link>. Optional.
         </p>
       )}
       {error === 'bad-token' && (
-        <p className="text-xs text-red-600">
+        <p className="text-xs text-red-400">
           Lichess did not accept your token. Check it in <Link className="underline" to="/settings">Settings</Link>.
         </p>
       )}
-      {error === 'network' && <p className="text-xs text-neutral-500">Explorer stats are unavailable right now (offline?).</p>}
+      {error === 'network' && <p className="text-xs text-cm-faint">Explorer stats are unavailable right now (offline?).</p>}
       {stats && view === 'moves' && (
         all === 0 ? (
-          <p className="text-xs text-neutral-500">No games at your level reached this position.</p>
+          <p className="text-xs text-cm-faint">No games at your level reached this position.</p>
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-start text-xs text-neutral-500">
+              <tr className="text-start text-xs text-cm-faint">
                 <th className="text-start font-normal">Move</th>
                 <th className="text-end font-normal">Played</th>
                 <th className="w-1/2 ps-2 text-start font-normal">White / Draw / Black</th>
@@ -392,7 +392,7 @@ export function OpeningPanel({ pathFens, fen, onPlay }: {
                 const t = total(m);
                 const pct = (n: number) => `${Math.round((n / t) * 100)}%`;
                 return (
-                  <tr key={m.uci} className="cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-700" onClick={() => onPlay(m.uci)}>
+                  <tr key={m.uci} className="cursor-pointer hover:bg-cm-panel2" onClick={() => onPlay(m.uci)}>
                     <td className="py-1 font-semibold">{m.san}</td>
                     <td className="text-end">{Math.round((t / all) * 100)}%</td>
                     <td className="ps-2">

@@ -2,7 +2,8 @@
 
 ## Plan (build order)
 1. ✅ Project setup, board, chess.js, Stockfish in a Web Worker, **Analysis Mode**
-2. ⏳ Opening Library (first 3 openings in the path), then Blunder Check Trainer
+2. ✅ Opening Library (first 3 openings) + dark chess-site style UI
+   ⏳ Blunder Check Trainer
 3. Practice Mode with coaching levels
 4. Tactics, Planning, Endgames, Game Review
 5. Dashboard and the remaining openings
@@ -29,11 +30,34 @@
     `src/modules/analysis/handoff.ts`).
 - Saved data goes through `src/progress/store.ts` (versioned slots, localStorage today).
 
+### Phase 2: Opening Library
+- New look: dark theme in the style of popular chess sites (green board, 3D green buttons,
+  dark sidebar, numbered move list). No third-party logos or names.
+- Opening data format (`src/data/openings/types.ts`): lines of [move, why], merged into a tree.
+- Full lessons for the first 3 openings in the path:
+  - Italian Game (5 lines: Giuoco Piano, Pianissimo, Evans, Two Knights 4.Ng5, Fried Liver)
+  - 1...e5 for Black (9 lines: Petrov main, 3.d4, Four Knights, Philidor, and answers to
+    2.Qh5, 2.Bc4, 2.Nc3/f4, 2.d4, 2.f4)
+  - Queen's Gambit Declined (4 lines: Orthodox, Exchange, 5.Bf4, against the London)
+  - Each has character, THE PLAN, piece placement, goals, off-book advice, traps, model games.
+- Depth by rating: 8 moves under 1000, 10 under 1300, 12 above.
+- Modes: Learn, Drill (SM-2 cards), Play-out vs human-like bot, Recognize quiz (all 24
+  openings), Review queue. Mastery = 90%+ full drill on 3 separate days.
+- Learning path of 15 steps, reorderable; one step at a time; locked openings are read-only.
+- Library map of all 24 openings (mastered / studying / locked / lesson coming soon).
+- Human-like bot (`src/engine/humanBot.ts`) with 6 levels (600 to 1600).
+- Tests check every line is legal, every move is explained, and every line's ECO code and
+  name match the official Lichess list exactly.
+
 ## Next
-- Phase 2: Opening Library data format, first 3 openings (Italian, 1...e5 for Black,
-  Queen's Gambit Declined), Learn/Drill/Play-out/Recognize/Review modes, SM-2.
+- Blunder Check Trainer (Spot the threat, Is it safe?, Hanging pieces).
+- Then Practice Mode with coaching levels.
 
 ## Known issues / notes
+- Queen's Gambit Accepted is in the library but not in the 15-step path (the path follows
+  the owner's list). It can be added to a step by reordering later if wanted.
+- The QGD model game is a teaching game (the Elephant Trap), not a famous historical game.
+- Only 3 of 24 openings have full lessons so far; the rest show key moves and are in the quiz.
 - The Lichess explorer requires a personal token since 2025; without one the stats panel
   just shows how to add it.
 - Ratings: the user's rating is Chess.com. Explorer uses Lichess bands about 350 higher.

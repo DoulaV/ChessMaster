@@ -25,7 +25,7 @@ export function StudiesPage() {
               <Chessboard options={{ position: s.tree.nodes[s.current]?.fen, boardOrientation: s.orientation, allowDragging: false, showNotation: false }} />
             </div>
             <p className="font-semibold">{s.title}</p>
-            <p className="mb-2 text-xs text-neutral-500">{new Date(s.savedAt).toLocaleString()}</p>
+            <p className="mb-2 text-xs text-cm-faint">{new Date(s.savedAt).toLocaleString()}</p>
             <div className="flex gap-2">
               <Button
                 size="sm"

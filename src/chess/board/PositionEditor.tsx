@@ -106,14 +106,14 @@ export function PositionEditor({ initialFen, onDone, onCancel }: {
             }),
         }}
       />
-      <p className="text-xs text-neutral-500">Pick a piece, then tap squares. Tap again to remove.</p>
+      <p className="text-xs text-cm-faint">Pick a piece, then tap squares. Tap again to remove.</p>
       {(['w', 'b'] as const).map((c) => (
         <div key={c} className="flex flex-wrap gap-1">
           {PIECES.map((p) => (
             <button
               key={p}
               onClick={() => setBrush(c + p)}
-              className={`h-11 w-11 rounded-lg border text-3xl leading-none ${brush === c + p ? 'border-emerald-600 bg-emerald-100 dark:bg-emerald-900' : 'border-neutral-300 dark:border-neutral-600'}`}
+              className={`h-11 w-11 rounded-lg border text-3xl leading-none ${brush === c + p ? 'border-cm-green bg-cm-green/30' : 'border-cm-line'}`}
               aria-label={`${c === 'w' ? 'White' : 'Black'} ${p}`}
             >
               {GLYPH[c + p]}
@@ -122,7 +122,7 @@ export function PositionEditor({ initialFen, onDone, onCancel }: {
           {c === 'w' && (
             <button
               onClick={() => setBrush('x')}
-              className={`h-11 rounded-lg border px-3 text-sm ${brush === 'x' ? 'border-emerald-600 bg-emerald-100 dark:bg-emerald-900' : 'border-neutral-300 dark:border-neutral-600'}`}
+              className={`h-11 rounded-lg border px-3 text-sm ${brush === 'x' ? 'border-cm-green bg-cm-green/30' : 'border-cm-line'}`}
             >
               Eraser
             </button>
@@ -141,8 +141,8 @@ export function PositionEditor({ initialFen, onDone, onCancel }: {
         <Button size="sm" onClick={() => setPlacement(fromFen(START_FEN))}>Start position</Button>
         <Button size="sm" onClick={() => setPlacement({})}>Clear</Button>
       </div>
-      <p className="font-mono text-xs break-all text-neutral-500">{fen}</p>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      <p className="font-mono text-xs break-all text-cm-faint">{fen}</p>
+      {error && <p className="text-sm text-red-400">{error}</p>}
       <div className="flex justify-end gap-2">
         <Button onClick={onCancel}>Cancel</Button>
         <Button variant="primary" disabled={!!error} onClick={() => onDone(fen)}>

@@ -12,9 +12,9 @@ import { findKing } from '../utils';
 export type { Arrow };
 
 export const ARROW = {
-  engine: 'rgba(37, 99, 235, 0.75)',
-  engine2: 'rgba(37, 99, 235, 0.45)',
-  engine3: 'rgba(37, 99, 235, 0.3)',
+  engine: 'rgba(255, 170, 0, 0.85)',
+  engine2: 'rgba(255, 170, 0, 0.5)',
+  engine3: 'rgba(255, 170, 0, 0.32)',
   threat: 'rgba(220, 38, 38, 0.8)',
   good: 'rgba(22, 163, 74, 0.8)',
   hint: 'rgba(234, 179, 8, 0.85)',
@@ -28,7 +28,7 @@ export const HIGHLIGHT = {
 };
 
 const THEMES = {
-  green: { light: '#ebecd0', dark: '#779556' },
+  green: { light: '#ebecd0', dark: '#739552' },
   brown: { light: '#f0d9b5', dark: '#b58863' },
   blue: { light: '#dee3e6', dark: '#8ca2ad' },
 };
@@ -112,8 +112,8 @@ export function Board({
 
   const squareStyles: Record<string, CSSProperties> = {};
   if (lastMove) {
-    squareStyles[lastMove.from] = { background: 'rgba(255, 255, 51, 0.4)' };
-    squareStyles[lastMove.to] = { background: 'rgba(255, 255, 51, 0.4)' };
+    squareStyles[lastMove.from] = { background: 'rgba(255, 255, 51, 0.5)' };
+    squareStyles[lastMove.to] = { background: 'rgba(255, 255, 51, 0.5)' };
   }
   for (const [sq, color] of Object.entries(highlights)) {
     squareStyles[sq] = { background: color };
@@ -167,11 +167,11 @@ export function Board({
           className="absolute inset-0 z-10 flex items-center justify-center bg-black/40"
           onClick={() => setPromo(null)}
         >
-          <div className="flex gap-2 rounded-xl bg-white p-3 shadow-xl" onClick={(e) => e.stopPropagation()}>
+          <div className="flex gap-2 rounded-xl bg-cm-panel p-3 shadow-xl" onClick={(e) => e.stopPropagation()}>
             {promoPieces.map((p) => (
               <button
                 key={p}
-                className="flex h-16 w-16 items-center justify-center rounded-lg border text-4xl hover:bg-gray-100"
+                className="flex h-16 w-16 items-center justify-center rounded-lg bg-cm-panel2 text-4xl hover:bg-cm-hover"
                 onClick={() => {
                   const { from, to } = promo;
                   setPromo(null);

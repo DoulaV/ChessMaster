@@ -47,3 +47,20 @@ export function fensOf(sans: string[]): string[] {
   }
   return out;
 }
+
+/** SAN moves of the shortest move order for an official opening name. */
+export async function pgnForName(name: string): Promise<string[] | null> {
+  const d = await loadEco();
+  let best: string | null = null;
+  for (const [, n, pgn] of Object.values(d)) {
+    if (n === name && (!best || pgn.length < best.length)) best = pgn;
+  }
+  return best ? pgnToSans(best) : null;
+}
+
+export function pgnToSans(pgn: string): string[] {
+  return pgn
+    .split(/\s+/)
+    .filter((t) => t && !/^\d+\.+$/.test(t))
+    .map((t) => t.replace(/^\d+\.+/, ''));
+}
