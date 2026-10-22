@@ -3,6 +3,27 @@
 // tests); the Recognize quiz plays their moves and asks for the name.
 
 import { e5Black } from './e5Black';
+import { alekhine } from './alekhine';
+import { benoni } from './benoni';
+import { caroKann } from './caroKann';
+import { catalan } from './catalan';
+import { dutch } from './dutch';
+import { english } from './english';
+import { french } from './french';
+import { grunfeld } from './grunfeld';
+import { kingsGambit } from './kingsGambit';
+import { kingsIndian } from './kingsIndian';
+import { london } from './london';
+import { nimzoIndian } from './nimzoIndian';
+import { pirc } from './pirc';
+import { qga } from './qga';
+import { queensGambit } from './queensGambit';
+import { ruyLopez } from './ruyLopez';
+import { scandinavian } from './scandinavian';
+import { scotch } from './scotch';
+import { sicilian } from './sicilian';
+import { slav } from './slav';
+import { vienna } from './vienna';
 import { italian } from './italian';
 import { qgd } from './qgd';
 import type { Group, OpeningLesson, Side } from './types';
@@ -22,37 +43,37 @@ export const CATALOG: CatalogEntry[] = [
   // White
   { id: 'italian', name: 'Italian Game', side: 'white', group: 'white', eco: 'C50', lesson: italian,
     variations: ['Italian Game: Giuoco Piano', 'Italian Game: Evans Gambit', 'Italian Game: Two Knights Defense', 'Italian Game: Two Knights Defense, Fried Liver Attack'] },
-  { id: 'ruy-lopez', name: 'Ruy Lopez', side: 'white', group: 'white', eco: 'C60',
+  { id: 'ruy-lopez', name: 'Ruy Lopez', side: 'white', group: 'white', eco: 'C60', lesson: ruyLopez,
     variations: ['Ruy Lopez: Berlin Defense', 'Ruy Lopez: Morphy Defense', 'Ruy Lopez: Exchange Variation'] },
-  { id: 'scotch', name: 'Scotch Game', side: 'white', group: 'white', eco: 'C44', variations: ['Scotch Game'] },
-  { id: 'vienna', name: 'Vienna Game', side: 'white', group: 'white', eco: 'C25', variations: ['Vienna Game'] },
-  { id: 'kings-gambit', name: 'King’s Gambit', side: 'white', group: 'white', eco: 'C30', variations: ["King's Gambit", "King's Gambit Accepted"] },
-  { id: 'london', name: 'London System', side: 'white', group: 'white', eco: 'D02', variations: ["Queen's Pawn Game: London System"] },
-  { id: 'queens-gambit', name: 'Queen’s Gambit', side: 'white', group: 'white', eco: 'D06', variations: ["Queen's Gambit"] },
-  { id: 'english', name: 'English Opening', side: 'white', group: 'white', eco: 'A10', variations: ['English Opening', "English Opening: King's English Variation"] },
-  { id: 'catalan', name: 'Catalan', side: 'white', group: 'white', eco: 'E00', variations: ['Catalan Opening'] },
+  { id: 'scotch', name: 'Scotch Game', side: 'white', group: 'white', eco: 'C44', lesson: scotch, variations: ['Scotch Game'] },
+  { id: 'vienna', name: 'Vienna Game', side: 'white', group: 'white', eco: 'C25', lesson: vienna, variations: ['Vienna Game'] },
+  { id: 'kings-gambit', name: 'King’s Gambit', side: 'white', group: 'white', eco: 'C30', lesson: kingsGambit, variations: ["King's Gambit", "King's Gambit Accepted"] },
+  { id: 'london', name: 'London System', side: 'white', group: 'white', eco: 'D02', lesson: london, variations: ["Queen's Pawn Game: London System"] },
+  { id: 'queens-gambit', name: 'Queen’s Gambit', side: 'white', group: 'white', eco: 'D06', lesson: queensGambit, variations: ["Queen's Gambit"] },
+  { id: 'english', name: 'English Opening', side: 'white', group: 'white', eco: 'A10', lesson: english, variations: ['English Opening', "English Opening: King's English Variation"] },
+  { id: 'catalan', name: 'Catalan', side: 'white', group: 'white', eco: 'E00', lesson: catalan, variations: ['Catalan Opening'] },
   // Black against 1.e4
   { id: 'e5-black', name: '1...e5: Petrov & Philidor', side: 'black', group: 'black-e4', eco: 'C42', lesson: e5Black,
     variations: ["Petrov's Defense", 'Philidor Defense'] },
-  { id: 'sicilian', name: 'Sicilian Defense', side: 'black', group: 'black-e4', eco: 'B20',
+  { id: 'sicilian', name: 'Sicilian Defense', side: 'black', group: 'black-e4', eco: 'B20', lesson: sicilian,
     variations: ['Sicilian Defense: Open', 'Sicilian Defense: Dragon Variation', 'Sicilian Defense: Accelerated Dragon', 'Sicilian Defense: Najdorf Variation'] },
-  { id: 'french', name: 'French Defense', side: 'black', group: 'black-e4', eco: 'C00',
+  { id: 'french', name: 'French Defense', side: 'black', group: 'black-e4', eco: 'C00', lesson: french,
     variations: ['French Defense: Advance Variation', 'French Defense: Exchange Variation', 'French Defense: Winawer Variation'] },
-  { id: 'caro-kann', name: 'Caro-Kann Defense', side: 'black', group: 'black-e4', eco: 'B10',
+  { id: 'caro-kann', name: 'Caro-Kann Defense', side: 'black', group: 'black-e4', eco: 'B10', lesson: caroKann,
     variations: ['Caro-Kann Defense: Advance Variation', 'Caro-Kann Defense: Classical Variation'] },
-  { id: 'scandinavian', name: 'Scandinavian Defense', side: 'black', group: 'black-e4', eco: 'B01', variations: ['Scandinavian Defense'] },
-  { id: 'pirc', name: 'Pirc & Modern Defense', side: 'black', group: 'black-e4', eco: 'B07', variations: ['Pirc Defense', 'Modern Defense'] },
-  { id: 'alekhine', name: 'Alekhine’s Defense', side: 'black', group: 'black-e4', eco: 'B02', variations: ['Alekhine Defense'] },
+  { id: 'scandinavian', name: 'Scandinavian Defense', side: 'black', group: 'black-e4', eco: 'B01', lesson: scandinavian, variations: ['Scandinavian Defense'] },
+  { id: 'pirc', name: 'Pirc & Modern Defense', side: 'black', group: 'black-e4', eco: 'B07', lesson: pirc, variations: ['Pirc Defense', 'Modern Defense'] },
+  { id: 'alekhine', name: 'Alekhine’s Defense', side: 'black', group: 'black-e4', eco: 'B02', lesson: alekhine, variations: ['Alekhine Defense'] },
   // Black against 1.d4
   { id: 'qgd', name: 'Queen’s Gambit Declined', side: 'black', group: 'black-d4', eco: 'D30', lesson: qgd,
     variations: ["Queen's Gambit Declined"] },
-  { id: 'qga', name: 'Queen’s Gambit Accepted', side: 'black', group: 'black-d4', eco: 'D20', variations: ["Queen's Gambit Accepted"] },
-  { id: 'slav', name: 'Slav Defense', side: 'black', group: 'black-d4', eco: 'D10', variations: ['Slav Defense'] },
-  { id: 'kings-indian', name: 'King’s Indian Defense', side: 'black', group: 'black-d4', eco: 'E60', variations: ["King's Indian Defense"] },
-  { id: 'nimzo-indian', name: 'Nimzo-Indian Defense', side: 'black', group: 'black-d4', eco: 'E20', variations: ['Nimzo-Indian Defense'] },
-  { id: 'grunfeld', name: 'Grünfeld Defense', side: 'black', group: 'black-d4', eco: 'D80', variations: ['Grünfeld Defense'] },
-  { id: 'dutch', name: 'Dutch Defense', side: 'black', group: 'black-d4', eco: 'A80', variations: ['Dutch Defense'] },
-  { id: 'benoni', name: 'Benoni Defense', side: 'black', group: 'black-d4', eco: 'A56',
+  { id: 'qga', name: 'Queen’s Gambit Accepted', side: 'black', group: 'black-d4', eco: 'D20', lesson: qga, variations: ["Queen's Gambit Accepted"] },
+  { id: 'slav', name: 'Slav Defense', side: 'black', group: 'black-d4', eco: 'D10', lesson: slav, variations: ['Slav Defense'] },
+  { id: 'kings-indian', name: 'King’s Indian Defense', side: 'black', group: 'black-d4', eco: 'E60', lesson: kingsIndian, variations: ["King's Indian Defense"] },
+  { id: 'nimzo-indian', name: 'Nimzo-Indian Defense', side: 'black', group: 'black-d4', eco: 'E20', lesson: nimzoIndian, variations: ['Nimzo-Indian Defense'] },
+  { id: 'grunfeld', name: 'Grünfeld Defense', side: 'black', group: 'black-d4', eco: 'D80', lesson: grunfeld, variations: ['Grünfeld Defense'] },
+  { id: 'dutch', name: 'Dutch Defense', side: 'black', group: 'black-d4', eco: 'A80', lesson: dutch, variations: ['Dutch Defense'] },
+  { id: 'benoni', name: 'Benoni Defense', side: 'black', group: 'black-d4', eco: 'A56', lesson: benoni,
     variations: ['Benoni Defense', 'Benoni Defense: Modern Variation'] },
 ];
 

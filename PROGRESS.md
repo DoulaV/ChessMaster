@@ -49,15 +49,25 @@
 - Tests check every line is legal, every move is explained, and every line's ECO code and
   name match the official Lichess list exactly.
 
+### Phase 2b: All 24 openings
+- Full lessons for every opening in the library (24), written in parallel and checked by
+  `src/data/openings/validate.ts`: legal moves, a real explanation for every move, official
+  ECO code and name for every line, plan, off-book tips, traps, model games, no em dashes.
+- Extra engine audit: Stockfish replayed every line and flagged any book move losing more
+  than 1.5 pawns. One flawed London line was found and shortened; the re-run was clean.
+- Queen's Gambit Accepted is a bonus opening, unlocked when the QGD is mastered.
+- Model games: real historical games where every move is certain (Greco 1620, Opera Game,
+  Legal's Mate, Immortal Game); all others are clearly labelled teaching games.
+
 ## Next
 - Blunder Check Trainer (Spot the threat, Is it safe?, Hanging pieces).
 - Then Practice Mode with coaching levels.
 
 ## Known issues / notes
-- Queen's Gambit Accepted is in the library but not in the 15-step path (the path follows
-  the owner's list). It can be added to a step by reordering later if wanted.
+- Queen's Gambit Accepted is not in the 15-step path; it unlocks as a bonus after the QGD.
 - The QGD model game is a teaching game (the Elephant Trap), not a famous historical game.
-- Only 3 of 24 openings have full lessons so far; the rest show key moves and are in the quiz.
+- Most model games are teaching games, not famous games (only used famous games whose
+  every move was certain).
 - The Lichess explorer requires a personal token since 2025; without one the stats panel
   just shows how to add it.
 - Ratings: the user's rating is Chess.com. Explorer uses Lichess bands about 350 higher.
