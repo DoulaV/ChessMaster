@@ -2,6 +2,7 @@ import { HashRouter, Route, Routes } from 'react-router';
 import { AnalysisPage } from './modules/analysis/AnalysisPage';
 import { StudiesPage } from './modules/analysis/StudiesPage';
 import { BlunderPage } from './modules/blunder/BlunderPage';
+import { EndgamesPage } from './modules/endgames/EndgamesPage';
 import { HomePage } from './modules/home/HomePage';
 import { PlanningPage } from './modules/planning/PlanningPage';
 import { PracticePage } from './modules/practice/PracticePage';
@@ -31,6 +32,8 @@ export function App() {
           <Route path="practice" element={<PracticePage />} />
           <Route path="train" element={<TrainPage />} />
           <Route path="game-review" element={<GameReviewPage />} />
+          <Route path="endgames" element={<EndgamesPage />} />
+          <Route path="endgames/:id" element={<EndgamesPage />} />
           <Route path="tactics" element={<TacticsPage />} />
           <Route path="planning" element={<PlanningPage />} />
           <Route path="planning/:mode" element={<PlanningPage />} />

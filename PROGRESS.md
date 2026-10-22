@@ -5,8 +5,8 @@
 2. ✅ Opening Library (first 3 openings) + dark chess-site style UI
    ✅ Blunder Check Trainer
 3. ✅ Practice Mode with coaching levels
-4. Tactics, Planning, Endgames, Game Review
-5. Dashboard and the remaining openings
+4. ✅ Tactics, Planning, Endgames, Game Review
+5. ✅ Dashboard and the remaining openings
 
 ## Done
 ### Phase 1: Foundations and Analysis Mode
@@ -103,8 +103,24 @@
   The 3-hint limit now only applies to No help games.
 - Phone navigation: Home, Openings, Play, Train (Tactics, Blunder Check, Planning), Analysis.
 
+### Phase 5: Endgames, Game Review, Dashboard
+- Endgames (`src/data/endgames.ts`, every position verified with Stockfish at depth 22+):
+  KQ vs K, KR vs K (with random starts), king on the 6th, opposition (win, plus a defense
+  exercise), square rule (+ 8-question quiz), Lucena, Philidor. Practice vs Stockfish's
+  best defense with hints; results judged by `src/modules/endgames/judge.ts`; mastered
+  after 3 successes.
+- Game Review: import recent games from Chess.com or Lichess (public APIs, no login),
+  Stockfish review, blunders tagged by reason, where you left the opening book (or that you
+  followed it to the end of a lesson line), mistakes added to personal puzzles, Open in
+  Analysis at any move, link back to the game.
+- Dashboard (Home): daily streak, today's plan (opening drill, blunder check, 15 puzzles,
+  one game) with automatic ticks, current opening and library map, roadmap to 1500 in 4
+  stages with checklists computed from your progress, charts (puzzle rating, blunders per
+  game, win rate per bot, most common mistakes) with hover tooltips and table view.
+
 ## Next
-- Endgames, Game Review (Lichess and Chess.com import), Dashboard.
+- Everything in the original spec is built. Ideas: more puzzles per theme, more model
+  games, Arabic/RTL, a backend for syncing between devices.
 
 ## Known issues / notes
 - Queen's Gambit Accepted is not in the 15-step path; it unlocks as a bonus after the QGD.

@@ -10,8 +10,10 @@ import { treeFromSans } from '../moveTree';
 import { START_FEN, formatLine } from '../utils';
 import { Board, HIGHLIGHT } from './Board';
 
-export function LineViewer({ moves, comments = {}, orientation, header, highlightIndex, initialIndex, extra }: {
+export function LineViewer({ moves, comments = {}, orientation, header, highlightIndex, initialIndex, extra, startFen = START_FEN }: {
   moves: string[];
+  /** Position the moves start from (default: the normal start). */
+  startFen?: string;
   /** Comments keyed by move index. */
   comments?: Record<number, string>;
   orientation: 'white' | 'black';
@@ -23,14 +25,14 @@ export function LineViewer({ moves, comments = {}, orientation, header, highligh
 }) {
   const navigate = useNavigate();
   const positions = useMemo(() => {
-    const c = new Chess();
-    const out = [{ fen: START_FEN, from: '', to: '' }];
+    const c = new Chess(startFen);
+    const out = [{ fen: c.fen(), from: '', to: '' }];
     for (const m of moves) {
       const mv = c.move(m);
       out.push({ fen: c.fen(), from: mv.from, to: mv.to });
     }
     return out;
-  }, [moves]);
+  }, [moves, startFen]);
   // `index` = number of moves played.
   const [index, setIndex] = useState(initialIndex ?? 0);
   useEffect(() => setIndex(initialIndex ?? 0), [moves, initialIndex]);
@@ -79,20 +81,20 @@ export function LineViewer({ moves, comments = {}, orientation, header, highligh
                   onClick={() => setIndex(i + 1)}
                   className={`rounded px-1 py-0.5 font-semibold ${i + 1 === index ? 'bg-cm-hover' : 'hover:bg-cm-panel2'} ${i === highlightIndex ? 'text-red-400' : ''}`}
                 >
-                  {i % 2 === 0 && <span className="me-0.5 font-normal text-cm-faint">{i / 2 + 1}.</span>}
+                  {moveLabel(startFen, i) && <span className="me-0.5 font-normal text-cm-faint">{moveLabel(startFen, i)}</span>}
                   {m}
                   {i === highlightIndex && '?'}
                 </button>
               ))}
             </div>
-            <p className="sr-only">{formatLine(START_FEN, moves)}</p>
+            <p className="sr-only">{formatLine(startFen, moves)}</p>
           </Card>
           {extra}
           <Button
             size="sm"
             variant="ghost"
             onClick={() => {
-              const { tree, last } = treeFromSans(moves.slice(0, index));
+              const { tree, last } = treeFromSans(moves.slice(0, index), startFen);
               navigate(analysisPath({ tree, current: last, orientation }));
             }}
           >
@@ -102,4 +104,13 @@ export function LineViewer({ moves, comments = {}, orientation, header, highligh
       }
     />
   );
+}
+
+/** "12." before White's moves (and "12..." if the line starts with Black), from any start position. */
+function moveLabel(startFen: string, i: number): string {
+  const [, turn, , , , no] = startFen.split(' ');
+  const off = turn === 'b' ? 1 : 0;
+  const n = Number(no || 1) + Math.floor((i + off) / 2);
+  if ((i + off) % 2 === 0) return `${n}.`;
+  return i === 0 ? `${n}...` : '';
 }
