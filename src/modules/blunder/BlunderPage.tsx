@@ -63,7 +63,7 @@ function BlunderHome() {
       </Card>
       {d && (
         <p className="text-sm text-cm-muted">
-          Today: {d.spot} threats spotted, {d.safe} safety checks, {d.hanging} hanging-piece rounds.
+          Today: {d.spot} threats spotted, {d.safe} safety checks, {d.hanging} hanging-piece positions.
         </p>
       )}
       <div className="grid gap-3 sm:grid-cols-3">
@@ -210,7 +210,10 @@ function IsItSafe() {
 
   const start = () => {
     if (!bank) return;
-    setItems(pickFresh(bank.safe, ROUND, stats.recent.safe));
+    // Half safe, half blunders, so guessing "blunder" every time doesn't work.
+    const safe = pickFresh(bank.safe.filter((q) => q.verdict === 'safe'), ROUND / 2, stats.recent.safe);
+    const bad = pickFresh(bank.safe.filter((q) => q.verdict === 'blunder'), ROUND / 2, stats.recent.safe);
+    setItems([...safe, ...bad].sort(() => Math.random() - 0.5));
     setI(0);
     setRight(0);
     setAnswer(null);
@@ -280,7 +283,7 @@ function IsItSafe() {
                   {answer === q.verdict ? '✓ Right!' : '✗ Not this time'}{' '}
                   <span className="text-white">Stockfish: {q.verdict === 'safe' ? 'safe' : `blunder (loses about ${(q.loss / 100).toFixed(1)} pawns)`}</span>
                 </p>
-                {q.reply && q.verdict === 'blunder' && <p className="text-sm text-cm-muted">The red arrow shows the punishment: {q.reply}.</p>}
+                {q.reply && q.verdict === 'blunder' && <p className="text-sm text-cm-muted">The red arrow shows Stockfish’s answer: {q.reply}.</p>}
                 <div className="my-2 space-y-1 text-[15px]">
                   {q.text.map((t, k) => (
                     <p key={k}>{t}</p>

@@ -27,6 +27,24 @@ function seeded(seed: number) {
   };
 }
 
+/**
+ * Drop detector sentences that blame a different capture than the engine's
+ * real answer, and fall back to a plain, always-true sentence.
+ */
+function honestText(text: string[], verdict: string, reply: string, loss: number): string[] {
+  if (verdict !== 'blunder') return text;
+  const plain = (s: string) => s.replace(/[+#]/g, '');
+  const keep = text.filter((t) => {
+    const m = t.match(/,? and (\S+) wins (it|material)|: (\S+) wins (it|material)|This allows a fork: (\S+) attacks|still not safe: (\S+) wins it/);
+    const san = m && (m[1] || m[3] || m[5] || m[6]);
+    return !san || plain(san) === plain(reply);
+  });
+  if (!keep.some((t) => !t.startsWith('Better was'))) {
+    keep.unshift(`This gives away about ${(loss / 100).toFixed(1)} pawns compared with the best move. Your opponent’s best answer is ${reply} (red arrow).`);
+  }
+  return keep;
+}
+
 const N_THREAT = 300;
 const N_SAFE = 300;
 const N_HANG = 250;
@@ -88,7 +106,7 @@ it.skipIf(!process.env.GEN)('build blunder bank', async () => {
       bestBefore: { score: { cp: q.student === 'w' ? before.cp : -before.cp, mate: null }, uci: before.uci },
       after: { score: { cp: q.student === 'w' ? after : -after, mate: null }, replyUci: afterBest.uci },
     });
-    const reply = afterBest.uci ? pvToSan(c.fen(), [afterBest.uci])[0] : '';
+    const reply = (afterBest.uci ? pvToSan(c.fen(), [afterBest.uci])[0] : '') ?? '';
     bank.safe.push({
       fen: q.fen,
       uci: q.uci,
@@ -97,7 +115,7 @@ it.skipIf(!process.env.GEN)('build blunder bank', async () => {
       loss: Math.round(loss),
       best: pvToSan(q.fen, [before.uci])[0] ?? '',
       reply: reply ?? '',
-      text: ex.sentences.filter((s) => !s.startsWith('The evaluation went')),
+      text: honestText(ex.sentences.filter((s) => !s.startsWith('The evaluation went')), verdict, reply, loss),
     });
   }
 

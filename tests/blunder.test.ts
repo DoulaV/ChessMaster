@@ -69,11 +69,11 @@ describe.skipIf(bank.safe.length === 0)('the pre-built exercise bank', () => {
 
   it('has enough exercises of each kind', () => {
     expect(bank.threats.length).toBeGreaterThanOrEqual(200);
-    expect(bank.safe.length).toBeGreaterThanOrEqual(200);
+    expect(bank.safe.length).toBeGreaterThanOrEqual(160);
     expect(bank.hanging.length).toBeGreaterThanOrEqual(200);
-    const blunders = bank.safe.filter((s) => s.verdict === 'blunder').length;
-    expect(blunders / bank.safe.length).toBeGreaterThan(0.3);
-    expect(blunders / bank.safe.length).toBeLessThan(0.7);
+    // Rounds mix 5 safe and 5 blunder moves, so each kind needs plenty.
+    expect(bank.safe.filter((s) => s.verdict === 'blunder').length).toBeGreaterThanOrEqual(80);
+    expect(bank.safe.filter((s) => s.verdict === 'safe').length).toBeGreaterThanOrEqual(80);
   });
 
   it('threat answers are the student’s own pieces or squares, and the threats are legal', () => {

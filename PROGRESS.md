@@ -3,7 +3,7 @@
 ## Plan (build order)
 1. ✅ Project setup, board, chess.js, Stockfish in a Web Worker, **Analysis Mode**
 2. ✅ Opening Library (first 3 openings) + dark chess-site style UI
-   ⏳ Blunder Check Trainer
+   ✅ Blunder Check Trainer
 3. Practice Mode with coaching levels
 4. Tactics, Planning, Endgames, Game Review
 5. Dashboard and the remaining openings
@@ -59,9 +59,20 @@
 - Model games: real historical games where every move is certain (Greco 1620, Opera Game,
   Legal's Mate, Immortal Game); all others are clearly labelled teaching games.
 
+### Phase 2c: Blunder Check Trainer
+- The 4-question checklist as a habit card (reused later in Practice Mode).
+- Spot the threat, Is it safe? and timed Hanging pieces, 10 positions per round.
+- Positions come from all opening lessons (realistic), pre-built into
+  `src/data/blunder.json` by `npm run gen:blunder` and checked with Stockfish:
+  - threats count only if "passing" lets the opponent win 2+ pawns more;
+  - "safe" = loses at most 0.6 pawns, "blunder" = loses 2+ pawns vs the best move;
+  - explanations that blame the wrong capture are replaced by an always-true sentence.
+- Rounds of Is it safe? are 5 safe + 5 blunder moves, so guessing doesn't work.
+- Stats saved per day (for the streak and dashboard), best hanging-pieces time.
+- Pattern detectors made about 4x faster (only look at pieces that attack a square).
+
 ## Next
-- Blunder Check Trainer (Spot the threat, Is it safe?, Hanging pieces).
-- Then Practice Mode with coaching levels.
+- Practice Mode with coaching levels (bots 600 to 1600).
 
 ## Known issues / notes
 - Queen's Gambit Accepted is not in the 15-step path; it unlocks as a bonus after the QGD.
