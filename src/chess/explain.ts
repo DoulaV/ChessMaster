@@ -175,3 +175,43 @@ export function explainMove(input: ExplainInput): MoveExplanation {
   }
   return { quality, winLoss, sentences };
 }
+
+export type MistakeTag =
+  | 'allowed-mate'
+  | 'hung-piece'
+  | 'allowed-fork'
+  | 'missed-mate'
+  | 'missed-fork'
+  | 'missed-win'
+  | 'other';
+
+export const MISTAKE_LABEL: Record<MistakeTag, string> = {
+  'allowed-mate': 'Allowed checkmate',
+  'hung-piece': 'Hung a piece',
+  'allowed-fork': 'Allowed a fork',
+  'missed-mate': 'Missed a checkmate',
+  'missed-fork': 'Missed a fork',
+  'missed-win': 'Missed winning material',
+  other: 'Other (plan or position)',
+};
+
+/** Why a move was a mistake, as a short category (for stats like "most common mistakes"). */
+export function mistakeTag(fenBefore: string, uci: string, bestUci?: string | null): MistakeTag {
+  const problems = moveProblems(fenBefore, uci).join(' ');
+  if (/allows checkmate/.test(problems)) return 'allowed-mate';
+  if (/undefended|can be taken|not safe/.test(problems)) return 'hung-piece';
+  if (/allows a fork/.test(problems)) return 'allowed-fork';
+  if (bestUci) {
+    const ideas = moveIdeas(fenBefore, bestUci).join(' ');
+    if (/checkmate/.test(ideas)) return 'missed-mate';
+    if (/Forks/.test(ideas)) return 'missed-fork';
+    if (/Wins material|Captures/.test(ideas)) return 'missed-win';
+  }
+  return 'other';
+}
+
+/** Lichess-style accuracy (0 to 100) for one move from win chances (0 to 1) before and after, mover's view. */
+export function moveAccuracy(winBefore: number, winAfter: number): number {
+  const drop = Math.max(0, winBefore - winAfter) * 100;
+  return Math.max(0, Math.min(100, 103.1668 * Math.exp(-0.04354 * drop) - 3.1669));
+}

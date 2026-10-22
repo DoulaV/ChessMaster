@@ -3,10 +3,11 @@ import { NavLink, Outlet } from 'react-router';
 const NAV = [
   { to: '/', label: 'Home', icon: '🏠', end: true, mobile: true },
   { to: '/openings', label: 'Openings', icon: '📖', mobile: true },
+  { to: '/practice', label: 'Play', icon: '🤖', mobile: true },
   { to: '/blunder-check', label: 'Blunders', icon: '🛡️', mobile: true },
   { to: '/analysis', label: 'Analysis', icon: '🔬', mobile: true },
   { to: '/studies', label: 'Studies', icon: '📚', mobile: false },
-  { to: '/settings', label: 'Settings', icon: '⚙️', mobile: true },
+  { to: '/settings', label: 'Settings', icon: '⚙️', mobile: false },
 ];
 
 export function Layout() {

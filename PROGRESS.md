@@ -4,7 +4,7 @@
 1. ✅ Project setup, board, chess.js, Stockfish in a Web Worker, **Analysis Mode**
 2. ✅ Opening Library (first 3 openings) + dark chess-site style UI
    ✅ Blunder Check Trainer
-3. Practice Mode with coaching levels
+3. ✅ Practice Mode with coaching levels
 4. Tactics, Planning, Endgames, Game Review
 5. Dashboard and the remaining openings
 
@@ -71,8 +71,25 @@
 - Stats saved per day (for the streak and dashboard), best hanging-pieces time.
 - Pattern detectors made about 4x faster (only look at pieces that attack a square).
 
+### Phase 3: Practice Mode
+- Setup: bot 600 to 1600, color (white/black/random), normal start / an opening from the
+  library / custom FEN, time control (none, 10, 15+10, 30), coach (Full, Light, None).
+- Bots play real book moves from the 24 lessons (weighted to main lines), then the
+  human-like engine. "In book" banner; alert when you or the bot leave the book.
+- Full coach: checklist, your hanging pieces in red, mate threats in yellow, and a warning
+  with explanation + takeback when a move loses about 1.5+ pawns. Light coach: only big
+  blunders (2+ pawns or allowing mate).
+- Hints: 3 per game; each hint goes words -> piece highlight -> arrow.
+- Takebacks counted; wins with takebacks don't count toward levelling up.
+- After the game: Stockfish review (accuracy like Lichess, blunder/mistake counts, top 3
+  mistakes with tags and explanations, turning point), mistakes saved as personal puzzles
+  (`src/progress/puzzles.ts`), Open in Analysis, results per bot level, level-up
+  suggestion after 3 wins in the last 5 games.
+- Navigation: Play added to the bottom bar; Studies and Settings are buttons on Home (phone).
+
 ## Next
-- Practice Mode with coaching levels (bots 600 to 1600).
+- Tactics by theme (Lichess puzzle database), including your personal puzzles.
+- Then Planning, Endgames, Game Review, Dashboard.
 
 ## Known issues / notes
 - Queen's Gambit Accepted is not in the 15-step path; it unlocks as a bonus after the QGD.

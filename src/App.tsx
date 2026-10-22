@@ -3,6 +3,7 @@ import { AnalysisPage } from './modules/analysis/AnalysisPage';
 import { StudiesPage } from './modules/analysis/StudiesPage';
 import { BlunderPage } from './modules/blunder/BlunderPage';
 import { HomePage } from './modules/home/HomePage';
+import { PracticePage } from './modules/practice/PracticePage';
 import { OpeningPage } from './modules/openings/OpeningPage';
 import { OpeningsPage } from './modules/openings/OpeningsPage';
 import { RecognizePage } from './modules/openings/RecognizePage';
@@ -23,6 +24,7 @@ export function App() {
           <Route path="openings/:id" element={<OpeningPage />} />
           <Route path="blunder-check" element={<BlunderPage />} />
           <Route path="blunder-check/:mode" element={<BlunderPage />} />
+          <Route path="practice" element={<PracticePage />} />
           <Route path="analysis" element={<AnalysisPage />} />
           <Route path="studies" element={<StudiesPage />} />
           <Route path="settings" element={<SettingsPage />} />

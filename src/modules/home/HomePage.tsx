@@ -15,11 +15,11 @@ interface ModuleInfo {
 export const MODULES: ModuleInfo[] = [
   { to: '/openings', title: 'Opening Library', icon: '📖', blurb: 'Learn famous openings one at a time: the moves, why, the plan and the traps.', ready: true },
   { to: '/blunder-check', title: 'Blunder Check', icon: '🛡️', blurb: 'Build the habit that stops you hanging pieces and missing threats.', ready: true },
-  { to: '/practice', title: 'Practice Games', icon: '🤖', blurb: 'Play bots from 600 to 1600 with a coach watching your moves.', ready: false },
+  { to: '/practice', title: 'Practice Games', icon: '🤖', blurb: 'Play bots from 600 to 1600 with a coach watching your moves.', ready: true },
   { to: '/tactics', title: 'Tactics', icon: '⚡', blurb: '15 puzzles a day by theme: forks, pins, skewers, mates.', ready: false },
   { to: '/planning', title: 'Planning', icon: '🧭', blurb: 'Learn to think in plans and candidate moves, not one move at a time.', ready: false },
   { to: '/endgames', title: 'Endgames', icon: '👑', blurb: 'The essential checkmates and pawn endings, practiced until automatic.', ready: false },
-  { to: '/review', title: 'Game Review', icon: '🔍', blurb: 'Import your Chess.com games and turn your mistakes into puzzles.', ready: false },
+  { to: '/game-review', title: 'Game Review', icon: '🔍', blurb: 'Import your Chess.com games and turn your mistakes into puzzles.', ready: false },
   { to: '/analysis', title: 'Analysis Board', icon: '🔬', blurb: 'Explore any position with the engine, threat view and explanations.', ready: true },
 ];
 
@@ -35,9 +35,15 @@ export function HomePage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-4">
-      <div>
-        <h1 className="text-2xl font-extrabold">Welcome back</h1>
-        <p className="text-cm-muted">Your path from 800 to 1500. One step at a time.</p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-extrabold">Welcome back</h1>
+          <p className="text-cm-muted">Your path from 800 to 1500. One step at a time.</p>
+        </div>
+        <div className="flex gap-1 lg:hidden">
+          <Link to="/studies" aria-label="My studies" className="flex h-11 w-11 items-center justify-center rounded-lg bg-cm-panel text-xl">📚</Link>
+          <Link to="/settings" aria-label="Settings" className="flex h-11 w-11 items-center justify-center rounded-lg bg-cm-panel text-xl">⚙️</Link>
+        </div>
       </div>
       <Card title="Today">
         <div className="space-y-3">
@@ -62,6 +68,10 @@ export function HomePage() {
           <div className="flex items-center justify-between gap-3">
             <p className="font-bold">🛡️ Blunder check: one round of each drill</p>
             <Button onClick={() => navigate('/blunder-check')}>Train</Button>
+          </div>
+          <div className="flex items-center justify-between gap-3">
+            <p className="font-bold">🤖 One practice game</p>
+            <Button onClick={() => navigate('/practice')}>Play</Button>
           </div>
           <p className="text-xs text-cm-faint">More daily tasks (blunder checks, puzzles, a practice game) appear here as those modules are built.</p>
         </div>
