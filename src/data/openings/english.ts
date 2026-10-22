@@ -137,7 +137,7 @@ export const english: OpeningLesson = {
       white: 'Student',
       black: 'Student',
       year: 2026,
-      result: '1-0',
+      result: '*',
       illustrative: true,
       moves: ['c4', 'e5', 'Nc3', 'Nf6', 'Nf3', 'Nc6', 'g3', 'Bc5', 'Nxe5', 'Nxe5', 'd4', 'Bd6', 'dxe5', 'Bxe5', 'Bg2', 'O-O', 'O-O', 'c6', 'Qc2'],
       comments: {

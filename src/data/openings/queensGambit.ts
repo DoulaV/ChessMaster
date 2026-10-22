@@ -179,7 +179,7 @@ export const queensGambit: OpeningLesson = {
       white: 'Student',
       black: 'Student',
       year: 2026,
-      result: '1-0',
+      result: '*',
       illustrative: true,
       moves: [
         'd4', 'd5', 'c4', 'e6', 'Nc3', 'Nf6', 'cxd5', 'exd5', 'Bg5', 'c6', 'e3', 'Be7', 'Bd3', 'Nbd7', 'Qc2', 'O-O',

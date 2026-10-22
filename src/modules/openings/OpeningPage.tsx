@@ -291,7 +291,7 @@ function GamesTab({ lesson }: { lesson: OpeningLesson }) {
           )}
           <Card title={g.title}>
             <p className="text-sm">
-              <b>{g.white}</b> vs <b>{g.black}</b>, {g.event ? `${g.event}, ` : ''}{g.illustrative ? 'teaching game' : g.year} · {g.result}
+              <b>{g.white}</b> vs <b>{g.black}</b>, {g.event ? `${g.event}, ` : ''}{g.illustrative ? 'teaching game' : g.year} · {g.result === '*' ? 'stops at the key moment' : g.result}
             </p>
             <p className="mt-2 text-sm text-cm-muted">{g.lesson}</p>
           </Card>

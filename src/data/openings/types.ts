@@ -43,7 +43,8 @@ export interface ModelGame {
   black: string;
   year: number;
   event?: string;
-  result: '1-0' | '0-1' | '1/2-1/2';
+  /** '*' = a teaching game that stops before the end. */
+  result: '1-0' | '0-1' | '1/2-1/2' | '*';
   /** True when this is a teaching game, not a famous historical game. */
   illustrative?: boolean;
   moves: string[];
