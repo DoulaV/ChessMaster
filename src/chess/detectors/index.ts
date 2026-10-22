@@ -23,9 +23,8 @@ export interface HangingPiece {
 export function exchangeGain(c: Chess, sq: Square, depth = 0): number {
   const target = c.get(sq);
   if (!target || depth > 10) return 0;
-  const caps = c.moves({ verbose: true }).filter((m) => m.to === sq && !m.isEnPassant());
-  if (caps.length === 0) return 0;
-  const cheapest = caps.reduce((a, b) => (PIECE_VALUE[b.piece] < PIECE_VALUE[a.piece] ? b : a));
+  const cheapest = bestCapture(c, sq);
+  if (!cheapest) return 0;
   c.move({ from: cheapest.from, to: cheapest.to, promotion: cheapest.promotion ? 'q' : undefined });
   const value = PIECE_VALUE[target.type] - exchangeGain(c, sq, depth + 1);
   c.undo();
@@ -34,7 +33,11 @@ export function exchangeGain(c: Chess, sq: Square, depth = 0): number {
 
 /** The capture that starts the best exchange on `sq` for the side to move. */
 function bestCapture(c: Chess, sq: Square): Move | null {
-  const caps = c.moves({ verbose: true }).filter((m) => m.to === sq && !m.isEnPassant());
+  // Only generate moves for pieces that attack the square (much faster than all moves).
+  const caps = c
+    .attackers(sq, c.turn())
+    .flatMap((from) => c.moves({ square: from, verbose: true }))
+    .filter((m) => m.to === sq && !m.isEnPassant());
   if (!caps.length) return null;
   return caps.reduce((a, b) => (PIECE_VALUE[b.piece] < PIECE_VALUE[a.piece] ? b : a));
 }
@@ -55,6 +58,7 @@ export function hangingPieces(fen: string, color: Color): HangingPiece[] {
   for (const sq of SQUARES) {
     const p = c.get(sq);
     if (!p || p.color !== color || p.type === 'k') continue;
+    if (!c.isAttacked(sq, c.turn())) continue;
     const loss = exchangeGain(c, sq);
     if (loss > 0) {
       const cap = bestCapture(c, sq);

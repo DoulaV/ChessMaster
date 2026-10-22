@@ -1,6 +1,7 @@
 import { HashRouter, Route, Routes } from 'react-router';
 import { AnalysisPage } from './modules/analysis/AnalysisPage';
 import { StudiesPage } from './modules/analysis/StudiesPage';
+import { BlunderPage } from './modules/blunder/BlunderPage';
 import { HomePage } from './modules/home/HomePage';
 import { OpeningPage } from './modules/openings/OpeningPage';
 import { OpeningsPage } from './modules/openings/OpeningsPage';
@@ -20,6 +21,8 @@ export function App() {
           <Route path="openings/review" element={<ReviewPage />} />
           <Route path="openings/recognize" element={<RecognizePage />} />
           <Route path="openings/:id" element={<OpeningPage />} />
+          <Route path="blunder-check" element={<BlunderPage />} />
+          <Route path="blunder-check/:mode" element={<BlunderPage />} />
           <Route path="analysis" element={<AnalysisPage />} />
           <Route path="studies" element={<StudiesPage />} />
           <Route path="settings" element={<SettingsPage />} />

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import { Board, ARROW, HIGHLIGHT, type Arrow } from '../../chess/board/Board';
 import { EvalBar } from '../../chess/board/EvalBar';
 import { MoveList } from '../../chess/board/MoveList';
@@ -261,6 +261,7 @@ export function AnalysisPage() {
             <Button size="sm" onClick={() => setModal('import')}>Paste FEN / PGN</Button>
             <Button size="sm" onClick={() => setModal('export')}>Export</Button>
             <Button size="sm" onClick={() => setModal('save')}>Save to studies</Button>
+            <Link to="/studies" className="inline-flex items-center px-2 text-sm font-semibold text-cm-muted underline hover:text-white">My studies</Link>
             <Button
               size="sm"
               onClick={() => {

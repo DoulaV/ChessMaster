@@ -14,7 +14,7 @@ interface ModuleInfo {
 
 export const MODULES: ModuleInfo[] = [
   { to: '/openings', title: 'Opening Library', icon: '📖', blurb: 'Learn famous openings one at a time: the moves, why, the plan and the traps.', ready: true },
-  { to: '/blunder-check', title: 'Blunder Check', icon: '🛡️', blurb: 'Build the habit that stops you hanging pieces and missing threats.', ready: false },
+  { to: '/blunder-check', title: 'Blunder Check', icon: '🛡️', blurb: 'Build the habit that stops you hanging pieces and missing threats.', ready: true },
   { to: '/practice', title: 'Practice Games', icon: '🤖', blurb: 'Play bots from 600 to 1600 with a coach watching your moves.', ready: false },
   { to: '/tactics', title: 'Tactics', icon: '⚡', blurb: '15 puzzles a day by theme: forks, pins, skewers, mates.', ready: false },
   { to: '/planning', title: 'Planning', icon: '🧭', blurb: 'Learn to think in plans and candidate moves, not one move at a time.', ready: false },
@@ -59,6 +59,10 @@ export function HomePage() {
               <Button onClick={() => navigate('/openings/review')}>Review</Button>
             </div>
           )}
+          <div className="flex items-center justify-between gap-3">
+            <p className="font-bold">🛡️ Blunder check: one round of each drill</p>
+            <Button onClick={() => navigate('/blunder-check')}>Train</Button>
+          </div>
           <p className="text-xs text-cm-faint">More daily tasks (blunder checks, puzzles, a practice game) appear here as those modules are built.</p>
         </div>
       </Card>

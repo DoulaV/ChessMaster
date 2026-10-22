@@ -1,11 +1,12 @@
 import { NavLink, Outlet } from 'react-router';
 
 const NAV = [
-  { to: '/', label: 'Home', icon: '🏠', end: true },
-  { to: '/openings', label: 'Openings', icon: '📖' },
-  { to: '/analysis', label: 'Analysis', icon: '🔬' },
-  { to: '/studies', label: 'Studies', icon: '📚' },
-  { to: '/settings', label: 'Settings', icon: '⚙️' },
+  { to: '/', label: 'Home', icon: '🏠', end: true, mobile: true },
+  { to: '/openings', label: 'Openings', icon: '📖', mobile: true },
+  { to: '/blunder-check', label: 'Blunders', icon: '🛡️', mobile: true },
+  { to: '/analysis', label: 'Analysis', icon: '🔬', mobile: true },
+  { to: '/studies', label: 'Studies', icon: '📚', mobile: false },
+  { to: '/settings', label: 'Settings', icon: '⚙️', mobile: true },
 ];
 
 export function Layout() {
@@ -35,7 +36,7 @@ export function Layout() {
         </main>
       </div>
       <nav className="fixed inset-x-0 bottom-0 z-40 flex bg-cm-panel pb-[env(safe-area-inset-bottom)] lg:hidden">
-        {NAV.map((n) => (
+        {NAV.filter((n) => n.mobile).map((n) => (
           <NavLink
             key={n.to}
             to={n.to}
