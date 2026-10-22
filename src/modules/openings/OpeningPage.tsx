@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
 import { LineViewer } from '../../chess/board/LineViewer';
 import { depthForRating, isStudentMove, lineNodes } from '../../data/openings/build';
-import { entry, type CatalogEntry } from '../../data/openings/catalog';
+import { BONUS_UNLOCKS, entry, type CatalogEntry } from '../../data/openings/catalog';
 import type { OpeningLesson } from '../../data/openings/types';
 import { pgnForName } from '../../data/eco';
 import {
@@ -66,7 +66,9 @@ export function OpeningPage() {
           {!unlocked && (
             <div className="mx-auto max-w-[1200px]">
               <Tip>
-                🔒 You study one opening at a time. This one unlocks when you master the openings before it in your path.
+                🔒 You study one opening at a time. {e.id in BONUS_UNLOCKS
+                  ? `This bonus opening unlocks when you master the ${entry(BONUS_UNLOCKS[e.id])?.name}.`
+                  : 'This one unlocks when you master the openings before it in your path.'}
                 You can still read the lesson, the plan, the traps and the model games.
               </Tip>
             </div>

@@ -1,7 +1,7 @@
 // Opening progress: drill scores per day, mastery, spaced-repetition cards,
 // and the learning path order.
 
-import { DEFAULT_PATH, entry, type PathStep } from '../data/openings/catalog';
+import { BONUS_UNLOCKS, DEFAULT_PATH, entry, type PathStep } from '../data/openings/catalog';
 import { read, update, type Slot } from './store';
 import { isDue, newCard, review, today, type SrsCard } from './srs';
 
@@ -135,6 +135,12 @@ export function pathStatus(order: string[], all: Record<string, OpeningProgress>
       else status[id] = entry(id)?.lesson ? 'locked' : 'coming-soon';
     }
     if (!stepDone && !currentStep) currentStep = step;
+  }
+  // Bonus openings (not in the path) open up once their related opening is mastered.
+  for (const [id, after] of Object.entries(BONUS_UNLOCKS)) {
+    if (isMastered(progressOf(all, id))) status[id] = 'mastered';
+    else if (!entry(id)?.lesson) status[id] = 'coming-soon';
+    else status[id] = status[after] === 'mastered' ? 'current' : 'locked';
   }
   return { steps, status, currentStep };
 }

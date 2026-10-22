@@ -91,6 +91,9 @@ export const DEFAULT_PATH: PathStep[] = [
   { id: 's15', title: 'English, Catalan, Grünfeld, Dutch, Benoni (advanced)', openings: ['english', 'catalan', 'grunfeld', 'dutch', 'benoni'] },
 ];
 
+/** Openings outside the path, and the opening that unlocks each one when mastered. */
+export const BONUS_UNLOCKS: Record<string, string> = { qga: 'qgd' };
+
 export const LESSONS: OpeningLesson[] = CATALOG.flatMap((c) => (c.lesson ? [c.lesson] : []));
 
 export function lesson(id: string): OpeningLesson | undefined {

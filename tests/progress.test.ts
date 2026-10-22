@@ -67,6 +67,13 @@ describe('mastery', () => {
     expect(st.status.qgd).toBe('locked');
   });
 
+  it('unlocks the bonus QGA after the QGD is mastered', () => {
+    const order = DEFAULT_PATH.map((s) => s.id);
+    const m = { drillDays: { a: 1, b: 1, c: 1 }, learnedLines: [] };
+    expect(pathStatus(order, {}).status.qga).not.toBe('current');
+    expect(pathStatus(order, { italian: m, 'e5-black': m, qgd: m }).status.qga).not.toBe('locked');
+  });
+
   it('respects a custom order and repairs unknown ids', () => {
     const order = ['s3', 's1', 'nope'];
     const steps = orderedPath(order);
